@@ -1,0 +1,57 @@
+/* Global Styles */
+:root {
+  --primary-color: #39ff14; /* Neon Green */
+  --primary-hover: #32e012;
+  --bg-dark: #0a0a0a;
+  --bg-card: #141414;
+  --text-light: #ffffff;
+  --text-gray: #a3a3a3;
+  --font-main: 'Outfit', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #fff, #39ff14);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
