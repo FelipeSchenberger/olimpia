@@ -1,0 +1,83 @@
+<div class="admin-container">
+  
+  <!-- LOGIN SECTION -->
+  <div class="login-box" *ngIf="!isAuthenticated">
+      <h2>🔐 Acceso Administrativo</h2>
+      <div class="input-group">
+          <input type="password" 
+                 [(ngModel)]="accessCode" 
+                 (keyup.enter)="login()"
+                 placeholder="Código de acceso">
+          <button (click)="login()">Entrar</button>
+      </div>
+      <p class="error" *ngIf="loginError">Código incorrecto.</p>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" *ngIf="isAuthenticated">
+      <div class="header">
+          <div class="date-selector">
+              <label>Fecha:</label>
+              <input type="date" [(ngModel)]="date" (change)="loadSlots()">
+          </div>
+          
+          <div class="court-tabs">
+              <button [class.active]="courtId === 1" (click)="setCourt(1)">Cancha 1</button>
+              <button [class.active]="courtId === 2" (click)="setCourt(2)">Cancha 2</button>
+          </div>
+      </div>
+
+      <!-- COMPACT GRID -->
+      <div class="slots-compact-grid">
+          <div *ngIf="isLoading" class="loading-overlay">
+              <div class="spinner"></div> Cargando turnos...
+          </div>
+
+          <ng-container *ngIf="!isLoading">
+            <div *ngFor="let slot of slots" 
+                 class="slot-btn" 
+                 [ngClass]="{
+                     'available': slot.status === 'AVAILABLE',
+                     'booked': slot.status === 'BOOKED' && slot.type !== 'BIRTHDAY',
+                     'fixed': slot.status === 'FIXED',
+                     'birthday': slot.type === 'BIRTHDAY'
+                 }"
+                 (click)="openModal(slot)">
+                {{ slot.startTime }}
+            </div>
+            
+            <div *ngIf="slots.length === 0" class="no-slots-msg">
+                No hay turnos disponibles para mostrar.
+                <button (click)="loadSlots()">Reintentar</button>
+            </div>
+          </ng-container>
+      </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" *ngIf="selectedSlot">
+      <div class="modal">
+          <h3>Gestión de Turno: {{ selectedSlot.startTime }}</h3>
+          <p class="status-text">Estado actual: {{ selectedSlot.status }} - {{ selectedSlot.type }}</p>
+          
+          <div class="form-group">
+              <label>Cliente:</label>
+              <input type="text" [(ngModel)]="clientNameInput" placeholder="Nombre completo">
+          </div>
+          
+          <div class="modal-actions">
+              <div class="grid-actions">
+                  <button class="btn-book" (click)="saveSlot('BOOKED')">Reservar Normal</button>
+                  <button class="btn-birthday" (click)="saveSlot('BIRTHDAY')">🎁 Cumpleaños</button>
+                  <button class="btn-fixed" (click)="saveSlot('FIXED')">📌 Hacer Fijo</button>
+              </div>
+              
+              <button class="btn-free" (click)="saveSlot('AVAILABLE')">♻️ Liberar Turno</button>
+          </div>
+          
+          <p class="error" *ngIf="modalError">{{ modalError }}</p>
+
+          <button class="btn-close" (click)="closeModal()">Cancelar</button>
+      </div>
+  </div>
+</div>

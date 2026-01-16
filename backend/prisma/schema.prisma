@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  date        DateTime // Fecha del turno
+  startTime   String   // Hora inicio "18:00"
+  endTime     String   // Hora fin "19:00"
+  status      String   // AVAILABLE, BOOKED, FIXED
+  clientName  String?
+  clientPhone String?
+  courtId     Int      @default(1)
+  type        String?  // 'NORMAL', 'BIRTHDAY', 'FIXED'
+  createdAt   DateTime @default(now())
+}
+
+model FixedSlot {
+  id        Int     @id @default(autoincrement())
+  dayOfWeek Int     // 1=Lunes, 7=Domingo
+  startTime String
+  endTime   String
+  clientName String
+  startDate DateTime // Desde cuándo aplica la regla
+  endDate   DateTime? // Hasta cuándo (opcional)
+  courtId   Int      @default(1)
+}

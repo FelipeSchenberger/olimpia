@@ -1,15 +1,178 @@
+/* Global Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
 .hero {
   position: relative;
-  height: 80vh;
-  min-height: 500px;
+  height: 90vh; /* Taller hero */
+  min-height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=2070&auto=format&fit=crop'); /* Placeholder Football Field */
+  background-image: url('https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=2070&auto=format&fit=crop'); 
   background-size: cover;
   background-position: center;
+  background-attachment: fixed; /* Parallax effect */
   color: white;
   text-align: center;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)); /* styled gradient */
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+  animation: fadeIn Up 1s ease-out;
+}
+
+/* Hero Branding Container */
+.hero-branding {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Reducido de 2rem a 1rem */
+  margin-bottom: 1rem;
+}
+
+/* Logo de la pelota (cuadrado verde) */
+.hero-ball-logo {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+  animation: logoFloat 6s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Texto del logo */
+.hero-text-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centrado */
+}
+
+.hero-title-text {
+  font-family: 'Anton', sans-serif;
+  font-size: 7rem;
+  line-height: 0.9;
+  letter-spacing: 0.05em; /* Sin espaciado extra */
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.hero-subtitle-text {
+  font-family: 'Anton', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 0.2em; /* Más espaciado para FUTBOL 5 */
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  opacity: 0.9;
+}
+
+.hero-subtitle {
+  font-size: 1.8rem;
+  color: #ddd;
+  margin-bottom: 3rem;
+  font-weight: 300;
+  max-width: 600px;
+}
+
+.text-gradient {
+  background: linear-gradient(45deg, var(--primary-color), #fff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cta-button {
+  background-color: var(--primary-color);
+  color: #000;
+  border: none;
+  padding: 1.2rem 3.5rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px; /* Sportier, less rounded */
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 255, 127, 0.4);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 255, 127, 0.6);
+  background-color: #fff;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-branding {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .hero-ball-logo {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .hero-text-logo {
+    align-items: center;
+  }
+  
+  .hero-title-text {
+    font-size: 3.5rem;
+    letter-spacing: normal;
+  }
+  
+  .hero-subtitle-text {
+    font-size: 1.5rem;
+    letter-spacing: 0.3em;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+  
+  .cta-button {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+  }
 }
 
 .hero-overlay {
