@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, Param, Put } from '@nestjs/common';
-import { SlotsService } from './slots.service';
+import { SlotsService, CreateFixedSlotDto } from './slots.service';
 
 @Controller('slots')
 export class SlotsController {
@@ -12,7 +12,7 @@ export class SlotsController {
 
   @Get('public')
   getPublicSlots(@Query('date') date: string) {
-      return this.slotsService.getPublicSlots(date);
+    return this.slotsService.getPublicSlots(date);
   }
 
   @Post('generate')
@@ -21,17 +21,20 @@ export class SlotsController {
   }
 
   @Post('fixed')
-  createFixed(@Body() body: any) {
+  createFixed(@Body() body: CreateFixedSlotDto) {
     return this.slotsService.createFixedSlot(body);
   }
 
   @Put(':id')
-  updateStatus(@Param('id') id: string, @Body() body: { status: string, clientName?: string, type?: string }) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() body: { status: string; clientName?: string; type?: string },
+  ) {
     return this.slotsService.updateSlotStatus(
       Number(id),
       body.status,
       body.clientName,
-      body.type
+      body.type,
     );
   }
 }

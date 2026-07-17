@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Todas las rutas del backend empezarán con /api
   app.setGlobalPrefix('api');
 
@@ -17,4 +17,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+bootstrap().catch((err) => console.error(err));

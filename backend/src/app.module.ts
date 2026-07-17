@@ -12,11 +12,19 @@ import { join } from 'path';
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
       // Asumiendo que el build de Angular se copia a 'dist/olimpia/browser' del frontend
-      rootPath: join(__dirname, '..', '..', 'frontend', 'dist', 'olimpia', 'browser'),
+      rootPath: join(
+        __dirname,
+        '..',
+        '..',
+        'frontend',
+        'dist',
+        'olimpia',
+        'browser',
+      ),
       exclude: ['/api/(.*)'], // No servir estáticos para rutas de la API
     }),
-    PrismaModule, 
-    SlotsModule
+    PrismaModule,
+    SlotsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
