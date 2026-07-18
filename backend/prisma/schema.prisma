@@ -30,3 +30,9 @@ model FixedSlot {
   endDate   DateTime? // Hasta cuándo (opcional)
   courtId   Int      @default(1)
 }
+
+model Setting {
+  key       String   @id   // e.g. "deposit_amount"
+  value     String         // stored as string, parsed by consumer
+  updatedAt DateTime @updatedAt
+}
