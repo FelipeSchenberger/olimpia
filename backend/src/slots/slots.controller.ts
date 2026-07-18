@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { SlotsService } from './slots.service';
 import type { CreateFixedSlotDto } from './slots.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 
 @Controller('slots')
 export class SlotsController {
@@ -26,19 +26,19 @@ export class SlotsController {
     return this.slotsService.getPublicSlots(date);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SupabaseAuthGuard)
   @Post('generate')
   generate(@Body() body: { start: string; end: string }) {
     return this.slotsService.generateSlots(body.start, body.end);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SupabaseAuthGuard)
   @Post('fixed')
   createFixed(@Body() body: CreateFixedSlotDto) {
     return this.slotsService.createFixedSlot(body);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SupabaseAuthGuard)
   @Put(':id')
   updateStatus(
     @Param('id') id: string,

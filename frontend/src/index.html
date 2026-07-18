@@ -25,6 +25,54 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Anton&display=swap"
       rel="stylesheet"
     />
+
+    <!-- SEO -->
+    <meta name="description" content="Reservá tu cancha de fútbol 5 en Olimpia, Concepción del Uruguay. Turnos online, 2 canchas de césped sintético. ¡Reservá ahora!" />
+    <meta name="keywords" content="fútbol 5, cancha, Concepción del Uruguay, reserva online, turnos, Olimpia" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Olimpia Fútbol 5 | Reservá tu cancha online" />
+    <meta property="og:description" content="Reservá tu cancha de fútbol 5 online en Concepción del Uruguay. 2 canchas de césped sintético." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/logo.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:url" content="https://olimpiafutbol5.com.ar/" />
+
+    <!-- JSON-LD: SportsActivityLocation (tarea 2.4) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsActivityLocation",
+      "name": "Olimpia Fútbol 5",
+      "description": "Complejo de fútbol 5 con 2 canchas de césped sintético en Concepción del Uruguay, Entre Ríos.",
+      "url": "https://olimpiafutbol5.com.ar",
+      "telephone": "",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Concepción del Uruguay",
+        "addressRegion": "Entre Ríos",
+        "addressCountry": "AR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "-32.4857",
+        "longitude": "-58.2326"
+      },
+      "sport": "Fútbol 5",
+      "amenityFeature": [
+        { "@type": "LocationFeatureSpecification", "name": "Canchas de césped sintético", "value": true },
+        { "@type": "LocationFeatureSpecification", "name": "Reserva online", "value": true }
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+          "opens": "09:00",
+          "closes": "02:00"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <app-root></app-root>
