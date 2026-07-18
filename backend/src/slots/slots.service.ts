@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FixedSlot } from '@prisma/client';
 
-interface PublicSlot {
+export interface PublicSlot {
   startTime: string;
   status: string;
 }
