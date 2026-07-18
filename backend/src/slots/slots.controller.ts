@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SlotsService } from './slots.service';
+import type { CreateFixedSlotDto } from './slots.service';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 
 @Controller('slots')
@@ -33,7 +34,7 @@ export class SlotsController {
 
   @UseGuards(SupabaseAuthGuard)
   @Post('fixed')
-  createFixed(@Body() body: any) {
+  createFixed(@Body() body: CreateFixedSlotDto) {
     return this.slotsService.createFixedSlot(body);
   }
 

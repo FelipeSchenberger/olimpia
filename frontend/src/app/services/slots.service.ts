@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Slot {
   id: number;
@@ -18,7 +19,7 @@ export interface Slot {
   providedIn: 'root'
 })
 export class SlotsService {
-  private apiUrl = 'http://localhost:3000/slots';
+  private apiUrl = `${environment.apiUrl}/slots`;
 
   constructor(private http: HttpClient) { }
 
