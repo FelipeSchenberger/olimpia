@@ -4,13 +4,23 @@
   <div class="login-box" *ngIf="!isAuthenticated">
       <h2>🔐 Acceso Administrativo</h2>
       <div class="input-group">
-          <input type="password" 
-                 [(ngModel)]="accessCode" 
+          <input type="email"
+                 [(ngModel)]="emailInput"
                  (keyup.enter)="login()"
-                 placeholder="Código de acceso">
-          <button (click)="login()">Entrar</button>
+                 placeholder="Email"
+                 autocomplete="email">
       </div>
-      <p class="error" *ngIf="loginError">Código incorrecto.</p>
+      <div class="input-group">
+          <input type="password"
+                 [(ngModel)]="passwordInput"
+                 (keyup.enter)="login()"
+                 placeholder="Contraseña"
+                 autocomplete="current-password">
+      </div>
+      <button (click)="login()" [disabled]="loginLoading">
+          {{ loginLoading ? 'Ingresando...' : 'Entrar' }}
+      </button>
+      <p class="error" *ngIf="loginError">{{ loginError }}</p>
   </div>
 
   <!-- ADMIN PANEL -->
@@ -20,11 +30,13 @@
               <label>Fecha:</label>
               <input type="date" [(ngModel)]="date" (change)="loadSlots()">
           </div>
-          
+
           <div class="court-tabs">
               <button [class.active]="courtId === 1" (click)="setCourt(1)">Cancha 1</button>
               <button [class.active]="courtId === 2" (click)="setCourt(2)">Cancha 2</button>
           </div>
+
+          <button class="btn-logout" (click)="logout()">Salir</button>
       </div>
 
       <!-- COMPACT GRID -->
