@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface Slot {
   id: number;
@@ -19,7 +20,7 @@ export interface Slot {
   providedIn: 'root',
 })
 export class SlotsService {
-  private apiUrl = 'http://localhost:3000/slots';
+  private apiUrl = `${environment.apiUrl}/slots`;
   private http = inject(HttpClient);
   private authService = inject(AuthService);
 
