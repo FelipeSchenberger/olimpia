@@ -1,22 +1,23 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
-import { FormsModule } from '@angular/forms'; 
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
-import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin.html',
-  styleUrl: './admin.css'
+  styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
+  private slotsService = inject(SlotsService);
+  private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
+
   date: string = new Date().toISOString().split('T')[0];
   slots: any[] = [];
-  isAuthenticated = false;
-  
-  // States
   isLoading: boolean = false;
   courtId: number = 1;
 
@@ -26,122 +27,134 @@ export class Admin implements OnInit {
   modalError: string = '';
 
   // Login props
-  accessCode: string = '';
-  loginError: boolean = false;
+  emailInput: string = '';
+  passwordInput: string = '';
+  loginError: string = '';
+  loginLoading: boolean = false;
 
-  constructor(
-      private slotsService: SlotsService, 
-      private router: Router,
-      private cdr: ChangeDetectorRef
-  ) {}
+  get isAuthenticated(): boolean {
+    return !!this.authService.currentUser();
+  }
 
-  ngOnInit() {}
+  ngOnInit() {
+    // If already authenticated (session restored), load slots
+    if (this.isAuthenticated) {
+      this.loadSlots();
+    }
+  }
 
-  login() {
-      if (this.accessCode === 'olimpia2026') {
-          this.isAuthenticated = true;
-          this.loginError = false;
-          this.loadSlots();
-      } else {
-          this.loginError = true;
-      }
+  async login() {
+    if (!this.emailInput || !this.passwordInput) {
+      this.loginError = 'Ingresá email y contraseña';
+      return;
+    }
+    this.loginLoading = true;
+    this.loginError = '';
+
+    const { error } = await this.authService.signIn(this.emailInput, this.passwordInput);
+
+    this.loginLoading = false;
+    if (error) {
+      this.loginError = 'Credenciales inválidas';
+    } else {
+      this.loadSlots();
+    }
+    this.cdr.detectChanges();
+  }
+
+  async logout() {
+    await this.authService.signOut();
+    this.slots = [];
+    this.cdr.detectChanges();
   }
 
   setCourt(id: number) {
-      if (this.courtId === id) return;
-      this.courtId = id;
-      this.slots = []; // Clear current view
-      this.loadSlots();
+    if (this.courtId === id) return;
+    this.courtId = id;
+    this.slots = [];
+    this.loadSlots();
   }
 
   loadSlots() {
-      this.isLoading = true;
-      this.slotsService.getSlots(this.date, this.courtId).subscribe({
-          next: (data) => {
-              this.slots = data;
-              this.isLoading = false;
-              this.cdr.detectChanges(); // Manually trigger update
-          },
-          error: (err) => {
-              console.error(err);
-              this.isLoading = false;
-              this.cdr.detectChanges(); // Check on error too
-          }
-      });
+    this.isLoading = true;
+    this.slotsService.getSlots(this.date, this.courtId).subscribe({
+      next: (data) => {
+        this.slots = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   openModal(slot: any) {
-      this.selectedSlot = slot;
-      this.clientNameInput = slot.clientName || '';
-      this.modalError = '';
+    this.selectedSlot = slot;
+    this.clientNameInput = slot.clientName || '';
+    this.modalError = '';
   }
 
   closeModal() {
-      this.selectedSlot = null;
+    this.selectedSlot = null;
   }
 
-  saveSlot(type: string) { 
-      if (!this.selectedSlot) return;
+  saveSlot(type: string) {
+    if (!this.selectedSlot) return;
 
-      if (type === 'AVAILABLE') {
-          if (!confirm('¿Seguro que quieres liberar este turno?')) return;
-          this.updateStatus('AVAILABLE', null, 'NORMAL');
-          return;
-      }
+    if (type === 'AVAILABLE') {
+      if (!confirm('¿Seguro que querés liberar este turno?')) return;
+      this.updateStatus('AVAILABLE', null, 'NORMAL');
+      return;
+    }
 
-      if (!this.clientNameInput.trim()) {
-          this.modalError = 'Debes ingresar un nombre';
-          return;
-      }
+    if (!this.clientNameInput.trim()) {
+      this.modalError = 'Debés ingresar un nombre';
+      return;
+    }
 
-      if (type === 'FIXED') {
-          this.createFixedAndSave();
-      } else if (type === 'BIRTHDAY') {
-           this.updateStatus('BOOKED', this.clientNameInput, 'BIRTHDAY');
-      } else {
-           this.updateStatus('BOOKED', this.clientNameInput, 'NORMAL');
-      }
+    if (type === 'FIXED') {
+      this.createFixedAndSave();
+    } else if (type === 'BIRTHDAY') {
+      this.updateStatus('BOOKED', this.clientNameInput, 'BIRTHDAY');
+    } else {
+      this.updateStatus('BOOKED', this.clientNameInput, 'NORMAL');
+    }
   }
 
   private updateStatus(status: string, clientName: string | null, type: string) {
-       this.isLoading = true;
-       this.slotsService.updateStatus(this.selectedSlot.id, status, clientName || undefined, type)
-           .subscribe(() => {
-               this.closeModal();
-               this.loadSlots(); 
-           });
+    this.isLoading = true;
+    this.slotsService
+      .updateStatus(this.selectedSlot.id, status, clientName || undefined, type)
+      .subscribe(() => {
+        this.closeModal();
+        this.loadSlots();
+      });
   }
 
   private createFixedAndSave() {
-      const slot = this.selectedSlot;
-      
-      // Cálculo robusto del día
-      // slot.date viene como ISO string (ej: 2026-01-15T00:00:00.000Z)
-      const isoDate = new Date(slot.date).toISOString(); 
-      const yyyymmdd = isoDate.split('T')[0]; // "2026-01-15"
-      
-      const dateObj = new Date(yyyymmdd + 'T12:00:00'); // Mediodía local ficticio
-      let dayOfWeek = dateObj.getDay();
-      if (dayOfWeek === 0) dayOfWeek = 7;
+    const slot = this.selectedSlot;
+    const isoDate = new Date(slot.date).toISOString();
+    const yyyymmdd = isoDate.split('T')[0];
+    const dateObj = new Date(yyyymmdd + 'T12:00:00');
+    let dayOfWeek = dateObj.getDay();
+    if (dayOfWeek === 0) dayOfWeek = 7;
 
-      console.log(`[Frontend] Slot Date: ${slot.date} -> ${yyyymmdd} -> Day ${dayOfWeek}`);
-      // alert(`Debug: Creating fixed for Day ${dayOfWeek}`);
+    const fixedData = {
+      dayOfWeek,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      clientName: this.clientNameInput,
+      startDate: new Date().toISOString(),
+      courtId: this.courtId,
+    };
 
-      const fixedData = {
-          dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          clientName: this.clientNameInput,
-          startDate: new Date().toISOString(),
-          courtId: this.courtId
-      };
-      
-      this.isLoading = true;
-      this.slotsService.createFixedSlot(fixedData).subscribe(() => {
-          this.closeModal();
-          this.loadSlots();
-          // Solo notificar éxito
-          // alert('Turno fijo creado y aplicado a futuros!'); 
-      });
+    this.isLoading = true;
+    this.slotsService.createFixedSlot(fixedData).subscribe(() => {
+      this.closeModal();
+      this.loadSlots();
+    });
   }
 }
