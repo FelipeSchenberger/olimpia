@@ -13,7 +13,7 @@ function makeContext(authHeader?: string): ExecutionContext {
   } as unknown as ExecutionContext;
 }
 
-describe('SupabaseAuthGuard', () => {
+describe('[Fase 1] SupabaseAuthGuard', () => {
   let guard: SupabaseAuthGuard;
 
   beforeEach(() => {

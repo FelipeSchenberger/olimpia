@@ -4,7 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
-describe('SlotsController (e2e)', () => {
+describe('[Fase 1] SlotsController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {

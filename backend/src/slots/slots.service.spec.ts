@@ -19,7 +19,7 @@ const mockPrismaService = {
   },
 };
 
-describe('SlotsService', () => {
+describe('[Fase 1] SlotsService', () => {
   let service: SlotsService;
   let prisma: PrismaService;
 

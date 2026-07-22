@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
-describe('App', () => {
+describe('[Fase 1] App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],

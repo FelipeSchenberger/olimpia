@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import { signal } from '@angular/core';
 
-describe('SettingsService', () => {
+describe('[Fase 1] SettingsService', () => {
   let service: SettingsService;
   let httpTestingController: HttpTestingController;
 
