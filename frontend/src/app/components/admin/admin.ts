@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
 import { AuthService } from '../../services/auth.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-admin',
@@ -14,12 +15,17 @@ import { AuthService } from '../../services/auth.service';
 export class Admin implements OnInit {
   private slotsService = inject(SlotsService);
   private authService = inject(AuthService);
+  private settingsService = inject(SettingsService);
   private cdr = inject(ChangeDetectorRef);
 
   date: string = new Date().toISOString().split('T')[0];
   slots: any[] = [];
   isLoading: boolean = false;
   courtId: number = 1;
+
+  // Settings State
+  depositAmount: number = 0;
+  isSavingDeposit: boolean = false;
 
   // Modal State
   selectedSlot: any = null;
@@ -37,9 +43,10 @@ export class Admin implements OnInit {
   }
 
   ngOnInit() {
-    // If already authenticated (session restored), load slots
+    // If already authenticated (session restored), load data
     if (this.isAuthenticated) {
       this.loadSlots();
+      this.loadSettings();
     }
   }
 
@@ -58,6 +65,7 @@ export class Admin implements OnInit {
       this.loginError = 'Credenciales inválidas';
     } else {
       this.loadSlots();
+      this.loadSettings();
     }
     this.cdr.detectChanges();
   }
@@ -85,7 +93,32 @@ export class Admin implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadSettings() {
+    this.settingsService.getDepositAmount().subscribe({
+      next: (amount) => {
+        this.depositAmount = amount;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error loading settings', err),
+    });
+  }
+
+  saveDepositAmount() {
+    this.isSavingDeposit = true;
+    this.settingsService.updateDepositAmount(this.depositAmount).subscribe({
+      next: (res) => {
+        this.depositAmount = Number(res.value);
+        this.isSavingDeposit = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error saving deposit', err);
+        this.isSavingDeposit = false;
         this.cdr.detectChanges();
       },
     });

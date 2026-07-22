@@ -39,6 +39,15 @@
           <button class="btn-logout" (click)="logout()">Salir</button>
       </div>
 
+      <!-- SETTINGS BAR -->
+      <div class="settings-bar">
+          <label>Monto de Seña ($):</label>
+          <input type="number" [(ngModel)]="depositAmount" placeholder="Ej: 5000">
+          <button (click)="saveDepositAmount()" [disabled]="isSavingDeposit">
+              {{ isSavingDeposit ? 'Guardando...' : 'Guardar' }}
+          </button>
+      </div>
+
       <!-- COMPACT GRID -->
       <div class="slots-compact-grid">
           <div *ngIf="isLoading" class="loading-overlay">
