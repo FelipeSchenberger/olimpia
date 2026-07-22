@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Home } from './home';
 
-describe('Home', () => {
+describe('[Fase 1] Home', () => {
   let component: Home;
   let fixture: ComponentFixture<Home>;
 
