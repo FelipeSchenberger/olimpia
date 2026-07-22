@@ -39,6 +39,47 @@
     background: #4CAF50; color: white; border-color: #4CAF50; transform: scale(1.05);
 }
 
+/* Settings Bar */
+.settings-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    background: #1a1a1a;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+.settings-bar label {
+    font-weight: bold;
+    color: #ccc;
+}
+.settings-bar input {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+    width: 120px;
+}
+.settings-bar button {
+    padding: 0.5rem 1rem;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.settings-bar button:hover:not(:disabled) {
+    background: #1565c0;
+}
+.settings-bar button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Compact Grid */
 .slots-compact-grid {
     display: grid;
