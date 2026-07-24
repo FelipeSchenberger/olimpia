@@ -25,7 +25,7 @@ describe('[Fase 1] SlotsController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get(`/slots?date=${today}&courtId=1`)
       .expect(200);
-    
+
     expect(Array.isArray(response.body)).toBe(true);
     if (response.body.length > 0) {
       expect(response.body[0]).toHaveProperty('startTime');
@@ -43,7 +43,13 @@ describe('[Fase 1] SlotsController (e2e)', () => {
   it('/slots/fixed (POST) should reject without token', async () => {
     await request(app.getHttpServer())
       .post('/slots/fixed')
-      .send({ dayOfWeek: 1, startTime: '10:00', endTime: '11:00', courtId: 1, startDate: new Date().toISOString() })
+      .send({
+        dayOfWeek: 1,
+        startTime: '10:00',
+        endTime: '11:00',
+        courtId: 1,
+        startDate: new Date().toISOString(),
+      })
       .expect(401);
   });
 });
