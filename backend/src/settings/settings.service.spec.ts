@@ -9,7 +9,7 @@ const mockPrisma = {
   },
 };
 
-describe('SettingsService', () => {
+describe('[Fase 1] SettingsService', () => {
   let service: SettingsService;
 
   beforeEach(async () => {
