@@ -66,4 +66,34 @@
   <div *ngIf="!isLoading && slots.length === 0" class="no-slots">
       <p>No hay horarios disponibles para esta fecha.</p>
   </div>
+
+  <!-- Modal de Reserva -->
+  <div class="modal-overlay" *ngIf="showBookingModal">
+    <div class="modal-content">
+      <h3>Reservar Turno</h3>
+      <p>Fecha: {{ getFormattedDate() }}</p>
+      <p>Hora: {{ selectedSlot?.startTime }}</p>
+      
+      <div class="form-group">
+        <label for="clientName">Tu Nombre:</label>
+        <input type="text" id="clientName" [(ngModel)]="clientName" placeholder="Ej: Juan Pérez">
+      </div>
+      
+      <div class="form-group">
+        <label for="clientPhone">Tu Teléfono (WhatsApp):</label>
+        <input type="text" id="clientPhone" [(ngModel)]="clientPhone" placeholder="Ej: 3442472109">
+      </div>
+
+      <div *ngIf="bookingError" class="error-message">
+        {{ bookingError }}
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeBookingModal()" [disabled]="isSubmitting">Cancelar</button>
+        <button class="btn-confirm" (click)="confirmBooking()" [disabled]="isSubmitting || !clientName || !clientPhone">
+          {{ isSubmitting ? 'Iniciando pago...' : 'Confirmar y Pagar' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </section>

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
+import { BookingsService } from '../../services/bookings.service';
 
 interface PublicSlot {
   startTime: string;
@@ -23,11 +24,7 @@ export class Slots implements OnInit {
   // Teléfono del complejo para WhatsApp
   private complexPhone = '+5493442472109'; 
 
-  constructor(
-    private slotsService: SlotsService,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
-  ) {}
+
 
   ngOnInit() {
     this.loadSlots();
@@ -210,16 +207,58 @@ export class Slots implements OnInit {
     return status === 'AVAILABLE';
   }
 
+  showBookingModal = false;
+  selectedSlot: PublicSlot | null = null;
+  clientName = '';
+  clientPhone = '';
+  isSubmitting = false;
+  bookingError = '';
+
+  constructor(
+    private slotsService: SlotsService,
+    private bookingsService: BookingsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
+
   reservar(slot: PublicSlot) {
     if (!this.isAvailable(slot.status)) return;
+    this.selectedSlot = slot;
+    this.showBookingModal = true;
+    this.bookingError = '';
+  }
 
-    const [year, month, day] = this.date.split('-').map(Number);
-    // Nota: el mes en Date es 0-indexado, pero para mostrarlo al usuario usamos el número directo o nombres
-    const dateObj = new Date(year, month - 1, day);
-    const dateStr = dateObj.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
-    
-    const message = `Hola! Quiero reservar el turno de las *${slot.startTime}* del *${dateStr}* en Olimpia.`;
-    const url = `https://wa.me/${this.complexPhone}?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+  closeBookingModal() {
+    this.showBookingModal = false;
+    this.selectedSlot = null;
+    this.clientName = '';
+    this.clientPhone = '';
+    this.bookingError = '';
+  }
+
+  confirmBooking() {
+    if (!this.selectedSlot || !this.clientName || !this.clientPhone) return;
+
+    this.isSubmitting = true;
+    this.bookingError = '';
+
+    this.bookingsService.createIntent({
+      date: this.date,
+      startTime: this.selectedSlot.startTime,
+      clientName: this.clientName,
+      clientPhone: this.clientPhone
+    }).subscribe({
+      next: (response) => {
+        // Redirigir a Mercado Pago
+        window.location.href = response.initPoint;
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.bookingError = err.error?.message || 'Error al iniciar reserva. El turno podría ya estar ocupado.';
+        this.cdr.detectChanges();
+        // Recargar slots por si alguien lo ocupó
+        this.loadSlots();
+      }
+    });
   }
 }

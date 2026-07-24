@@ -12,7 +12,6 @@ const mockPrismaService = {
     count: jest.fn(),
   },
   fixedSlot: {
-
     findMany: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
@@ -45,16 +44,20 @@ describe('[Fase 1] SlotsService', () => {
 
   it('should fetch slots for a date without generating if already exists', async () => {
     const dateStr = '2025-01-01';
-    
+
     // Simulate that all 15 regular + 2 late night slots exist
-    mockPrismaService.appointment.count.mockResolvedValueOnce(15).mockResolvedValueOnce(2);
-    mockPrismaService.appointment.count.mockResolvedValueOnce(15).mockResolvedValueOnce(2);
-    mockPrismaService.appointment.findMany.mockResolvedValueOnce(new Array(15).fill({})).mockResolvedValueOnce(new Array(2).fill({}));
+    mockPrismaService.appointment.count
+      .mockResolvedValueOnce(15)
+      .mockResolvedValueOnce(2);
+    mockPrismaService.appointment.count
+      .mockResolvedValueOnce(15)
+      .mockResolvedValueOnce(2);
+    mockPrismaService.appointment.findMany
+      .mockResolvedValueOnce(new Array(15).fill({}))
+      .mockResolvedValueOnce(new Array(2).fill({}));
 
-
-    
     const result = await service.getSlotsForDate(dateStr, 1);
-    
+
     expect(prisma.appointment.findMany).toHaveBeenCalled();
     expect(prisma.appointment.create).not.toHaveBeenCalled(); // No slots were generated
     expect(result).toHaveLength(17);
