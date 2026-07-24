@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+
 
 const ALLOWED_ORIGINS = [
   'https://olimpiafutbol5.com.ar',
