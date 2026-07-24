@@ -307,3 +307,115 @@
     height: 36px;
   }
 }
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel, .btn-confirm {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-cancel:hover:not([disabled]) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-confirm {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.btn-confirm:hover:not([disabled]) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 127, 0.3);
+}
+
+.btn-confirm[disabled], .btn-cancel[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+}

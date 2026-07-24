@@ -8,16 +8,19 @@ datasource db {
 }
 
 model Appointment {
-  id          Int      @id @default(autoincrement())
-  date        DateTime // Fecha del turno
-  startTime   String   // Hora inicio "18:00"
-  endTime     String   // Hora fin "19:00"
-  status      String   // AVAILABLE, BOOKED, FIXED
-  clientName  String?
-  clientPhone String?
-  courtId     Int      @default(1)
-  type        String?  // 'NORMAL', 'BIRTHDAY', 'FIXED'
-  createdAt   DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  date         DateTime  // Fecha del turno
+  startTime    String    // Hora inicio "18:00"
+  endTime      String    // Hora fin "19:00"
+  status       String    // AVAILABLE, PENDING, BOOKED, FIXED
+  clientName   String?
+  clientPhone  String?
+  courtId      Int       @default(1)
+  type         String?   // 'NORMAL', 'BIRTHDAY', 'FIXED'
+  preferenceId String?   // MP Preference ID
+  paymentId    String?   // MP Payment ID
+  expiresAt    DateTime? // Para turnos PENDING
+  createdAt    DateTime  @default(now())
 }
 
 model FixedSlot {

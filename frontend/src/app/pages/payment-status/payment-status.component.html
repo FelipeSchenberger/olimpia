@@ -1,0 +1,30 @@
+<div class="status-container">
+  <div class="status-card" [ngClass]="status">
+    <div class="icon-container">
+      <svg *ngIf="status === 'success'" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+      </svg>
+      <svg *ngIf="status === 'failure'" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+      </svg>
+      <svg *ngIf="status === 'pending'" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-clock-fill" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+      </svg>
+    </div>
+
+    <h2 *ngIf="status === 'success'">¡Reserva Confirmada!</h2>
+    <h2 *ngIf="status === 'failure'">Pago Rechazado</h2>
+    <h2 *ngIf="status === 'pending'">Pago Pendiente</h2>
+
+    <p *ngIf="status === 'success'">Tu pago se ha procesado correctamente y tu turno ha sido reservado.</p>
+    <p *ngIf="status === 'failure'">Hubo un problema procesando tu pago. Por favor, intenta nuevamente.</p>
+    <p *ngIf="status === 'pending'">Tu pago está siendo procesado. Te notificaremos cuando se confirme.</p>
+
+    <div class="details" *ngIf="paymentId">
+      <p><small>ID de Transacción: {{ paymentId }}</small></p>
+      <p *ngIf="externalReference"><small>Referencia: {{ externalReference }}</small></p>
+    </div>
+
+    <a routerLink="/" class="btn-home">Volver al inicio</a>
+  </div>
+</div>

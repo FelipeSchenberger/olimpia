@@ -1,0 +1,38 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class CronService {
+  private readonly logger = new Logger(CronService.name);
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleExpiredPendingAppointments() {
+    this.logger.debug('Checking for expired pending appointments...');
+
+    const now = new Date();
+
+    const result = await this.prisma.appointment.updateMany({
+      where: {
+        status: 'PENDING',
+        expiresAt: {
+          lt: now, // Less than now means it has expired
+        },
+      },
+      data: {
+        status: 'AVAILABLE',
+        clientName: null,
+        clientPhone: null,
+        expiresAt: null,
+        preferenceId: null,
+        paymentId: null,
+      },
+    });
+
+    if (result.count > 0) {
+      this.logger.log(`Released ${result.count} expired pending appointments.`);
+    }
+  }
+}

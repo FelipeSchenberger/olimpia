@@ -24,7 +24,7 @@ describe('[Fase 1] SettingsController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/settings/deposit-amount')
       .expect(200);
-    
+
     expect(typeof response.text).toBe('string');
     expect(Number.isNaN(Number(response.text))).toBe(false);
   });

@@ -18,11 +18,17 @@ export class SlotsController {
 
   @Get()
   getSlots(@Query('date') date: string, @Query('courtId') courtId: string) {
+    if (!date) {
+      date = new Date().toISOString().split('T')[0];
+    }
     return this.slotsService.getSlotsForDate(date, Number(courtId || 1));
   }
 
   @Get('public')
   getPublicSlots(@Query('date') date: string) {
+    if (!date) {
+      date = new Date().toISOString().split('T')[0];
+    }
     return this.slotsService.getPublicSlots(date);
   }
 

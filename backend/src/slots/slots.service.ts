@@ -88,7 +88,11 @@ export class SlotsService {
   }
 
   // 2. Obtener vista pública (Agregada)
+<<<<<<< HEAD
   async getPublicSlots(dateStr: string): Promise<PublicSlot[]> {
+=======
+  async getPublicSlots(dateStr: string) {
+>>>>>>> origin/main
     // Forzamos la generación/obtención de ambas canchas
     const slots1 = await this.getSlotsForDate(dateStr, 1);
     const slots2 = await this.getSlotsForDate(dateStr, 2);
@@ -105,6 +109,10 @@ export class SlotsService {
     // Lógica: Si Cancha 2 está LIBRE, el horario es LIBRE (aunque C1 esté ocupada)
     // Si Cancha 2 está OCUPADA, mantenemos lo que diga C1 (Si C1 libre -> libre, si C1 ocupada -> ocupada)
     slots2.forEach((s) => {
+<<<<<<< HEAD
+=======
+      const currentStatus = timeMap.get(s.startTime);
+>>>>>>> origin/main
       if (s.status === 'AVAILABLE') {
         timeMap.set(s.startTime, 'AVAILABLE');
       }
@@ -113,7 +121,11 @@ export class SlotsService {
     });
 
     // Convertir a array
+<<<<<<< HEAD
     const publicSlots: PublicSlot[] = [];
+=======
+    const publicSlots: any[] = [];
+>>>>>>> origin/main
     timeMap.forEach((status, time) => {
       publicSlots.push({ startTime: time, status });
     });
@@ -122,7 +134,11 @@ export class SlotsService {
     // Hack simple: Tratar 00 y 01 como 24 y 25 para ordenar
     return publicSlots.sort((a, b) => {
       const getVal = (t: string) => {
+<<<<<<< HEAD
         const h = parseInt(t.split(':')[0], 10);
+=======
+        const h = parseInt(t.split(':')[0]);
+>>>>>>> origin/main
         return h < 5 ? h + 24 : h; // Madrugada va al final
       };
       return getVal(a.startTime) - getVal(b.startTime);

@@ -13,7 +13,6 @@ const mockPrismaService = {
     count: jest.fn(),
   },
   fixedSlot: {
-
     findMany: jest.fn(),
     create: jest.fn(),
     delete: jest.fn(),
@@ -47,6 +46,7 @@ describe('[Fase 1] SlotsService', () => {
   it('should fetch slots for a date without generating if already exists', async () => {
     const dateStr = '2025-01-01';
 
+    // Simulate that all 15 regular + 2 late night slots exist
     // Simulate that all 15 regular + 2 late night slots exist
     mockPrismaService.appointment.count.mockResolvedValueOnce(15).mockResolvedValueOnce(2);
     // When generated is NOT called, these are the findMany calls for getSlotsForDate return:
