@@ -1,5 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { FixedSlot } from '@prisma/client';
+
+export interface PublicSlot {
+  startTime: string;
+  status: string;
+}
+
+export interface CreateFixedSlotDto {
+  courtId?: number | string;
+  dayOfWeek: number | string;
+  startTime: string;
+  endTime: string;
+  clientName: string;
+  startDate: string;
+  endDate?: string | null;
+}
 
 @Injectable()
 export class SlotsService {
@@ -72,7 +88,7 @@ export class SlotsService {
   }
 
   // 2. Obtener vista pública (Agregada)
-  async getPublicSlots(dateStr: string) {
+  async getPublicSlots(dateStr: string): Promise<PublicSlot[]> {
     // Forzamos la generación/obtención de ambas canchas
     const slots1 = await this.getSlotsForDate(dateStr, 1);
     const slots2 = await this.getSlotsForDate(dateStr, 2);
@@ -89,7 +105,7 @@ export class SlotsService {
     // Lógica: Si Cancha 2 está LIBRE, el horario es LIBRE (aunque C1 esté ocupada)
     // Si Cancha 2 está OCUPADA, mantenemos lo que diga C1 (Si C1 libre -> libre, si C1 ocupada -> ocupada)
     slots2.forEach((s) => {
-      const currentStatus = timeMap.get(s.startTime);
+
       if (s.status === 'AVAILABLE') {
         timeMap.set(s.startTime, 'AVAILABLE');
       }
@@ -98,7 +114,7 @@ export class SlotsService {
     });
 
     // Convertir a array
-    const publicSlots: any[] = [];
+    const publicSlots: PublicSlot[] = [];
     timeMap.forEach((status, time) => {
       publicSlots.push({ startTime: time, status });
     });
@@ -107,7 +123,7 @@ export class SlotsService {
     // Hack simple: Tratar 00 y 01 como 24 y 25 para ordenar
     return publicSlots.sort((a, b) => {
       const getVal = (t: string) => {
-        const h = parseInt(t.split(':')[0]);
+        const h = parseInt(t.split(':')[0], 10);
         return h < 5 ? h + 24 : h; // Madrugada va al final
       };
       return getVal(a.startTime) - getVal(b.startTime);
@@ -115,7 +131,7 @@ export class SlotsService {
   }
 
   // 3. Crear Turno Fijo y aplicar a futuros ya generados
-  async createFixedSlot(data: any) {
+  async createFixedSlot(data: CreateFixedSlotDto) {
     const courtId = Number(data.courtId || 1);
     const dayOfWeek = Number(data.dayOfWeek);
     console.log(
@@ -124,8 +140,12 @@ export class SlotsService {
 
     const created = await this.prisma.fixedSlot.create({
       data: {
-        ...data,
         dayOfWeek,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        clientName: data.clientName,
+        startDate: new Date(data.startDate),
+        endDate: data.endDate ? new Date(data.endDate) : null,
         courtId,
       },
     });
@@ -135,6 +155,9 @@ export class SlotsService {
     searchDate.setHours(0, 0, 0, 0);
     searchDate.setDate(searchDate.getDate() - 1); // Retroceder un día para evitar problemas de timezone con "Hoy"
 
+    // TODO: Refactor N+1 — Este findMany trae TODOS los turnos futuros para filtrar
+    // dayOfWeek en memoria. Cuando la base crezca, agregar dayOfWeek al model Appointment
+    // y filtrar directo en Prisma.
     const candidates = await this.prisma.appointment.findMany({
       where: {
         courtId: courtId,
@@ -195,85 +218,59 @@ export class SlotsService {
   // Helper para generar un solo día (Lógico)
   private async generateDaySlots(logicalDate: Date, courtId: number) {
     const regularHours = [
-      '09:00',
-      '10:00',
-      '11:00',
-      '12:00',
-      '13:00',
-      '14:00',
-      '15:00',
-      '16:00',
-      '17:00',
-      '18:00',
-      '19:00',
-      '20:00',
-      '21:00',
-      '22:00',
-      '23:00',
+      '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
+      '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
     ];
     const lateHours = ['00:00', '01:00'];
 
-    // Usar el helper robusto
     const dayOfWeek = this.getDayOfWeekRobust(logicalDate);
-
     const fixedSlots = await this.prisma.fixedSlot.findMany({
       where: { dayOfWeek, courtId },
     });
 
-    // Generar Horas Regulares
-    for (const time of regularHours) {
-      await this.createSlotIfNotExists(logicalDate, time, courtId, fixedSlots);
-    }
-
-    // Generar Horas Madrugada (Fecha física = logical + 1)
-    // IMPORTANTE: NO Recalcular dayOfWeek para la madrugada, siguen siendo "fijos del Lunes" aunque sean Martes 00:00
     const nextDay = new Date(logicalDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
-    for (const time of lateHours) {
-      await this.createSlotIfNotExists(nextDay, time, courtId, fixedSlots);
-    }
-  }
-
-  private async createSlotIfNotExists(
-    date: Date,
-    time: string,
-    courtId: number,
-    fixedSlots: any[],
-  ) {
-    const existing = await this.prisma.appointment.findFirst({
-      where: { date: date, startTime: time, courtId: courtId },
+    const existingMain = await this.prisma.appointment.findMany({
+      where: { date: logicalDate, courtId, startTime: { in: regularHours } },
+      select: { startTime: true },
     });
 
-    if (existing) return;
+    const existingLate = await this.prisma.appointment.findMany({
+      where: { date: nextDay, courtId, startTime: { in: lateHours } },
+      select: { startTime: true },
+    });
 
-    const fixed = fixedSlots.find((f) => f.startTime === time);
+    const existingMainTimes = new Set(existingMain.map(s => s.startTime));
+    const missingMain = regularHours.filter(h => !existingMainTimes.has(h));
 
-    const endTime = this.calculateEndTime(time);
+    const existingLateTimes = new Set(existingLate.map(s => s.startTime));
+    const missingLate = lateHours.filter(h => !existingLateTimes.has(h));
 
-    if (fixed) {
-      await this.prisma.appointment.create({
-        data: {
-          date: date,
-          startTime: time,
-          endTime: endTime,
-          status: 'FIXED',
-          type: 'FIXED',
-          clientName: fixed.clientName,
-          clientPhone: 'FIXED_SLOT',
-          courtId: courtId,
-        },
+    const mapMissingToCreate = (date: Date, time: string) => {
+      const fixed = fixedSlots.find(f => f.startTime === time);
+      const endTime = this.calculateEndTime(time);
+      return {
+        date,
+        startTime: time,
+        endTime,
+        status: fixed ? 'FIXED' : 'AVAILABLE',
+        type: fixed ? 'FIXED' : 'NORMAL',
+        clientName: fixed ? fixed.clientName : null,
+        clientPhone: fixed ? 'FIXED_SLOT' : null,
+        courtId,
+      };
+    };
+
+    if (missingMain.length > 0) {
+      await this.prisma.appointment.createMany({
+        data: missingMain.map(time => mapMissingToCreate(logicalDate, time)),
       });
-    } else {
-      await this.prisma.appointment.create({
-        data: {
-          date: date,
-          startTime: time,
-          endTime: endTime,
-          status: 'AVAILABLE',
-          type: 'NORMAL',
-          courtId: courtId,
-        },
+    }
+
+    if (missingLate.length > 0) {
+      await this.prisma.appointment.createMany({
+        data: missingLate.map(time => mapMissingToCreate(nextDay, time)),
       });
     }
   }
@@ -293,7 +290,10 @@ export class SlotsService {
     clientName?: string,
     type?: string,
   ) {
-    const data: any = { status, clientName };
+    const data: { status: string; clientName?: string; type?: string } = {
+      status,
+      clientName,
+    };
     if (type) data.type = type;
 
     return this.prisma.appointment.update({

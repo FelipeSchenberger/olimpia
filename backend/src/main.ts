@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
+
 const ALLOWED_ORIGINS = [
   'https://olimpiafutbol5.com.ar',
   'https://www.olimpiafutbol5.com.ar',
@@ -23,4 +24,4 @@ async function bootstrap() {
   });
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+bootstrap().catch((err) => console.error(err));
