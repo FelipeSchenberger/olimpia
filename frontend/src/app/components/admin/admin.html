@@ -39,13 +39,23 @@
           <button class="btn-logout" (click)="logout()">Salir</button>
       </div>
 
-      <!-- SETTINGS BAR -->
-      <div class="settings-bar">
-          <label>Monto de Seña ($):</label>
-          <input type="number" [(ngModel)]="depositAmount" placeholder="Ej: 5000">
-          <button (click)="saveDepositAmount()" [disabled]="isSavingDeposit">
-              {{ isSavingDeposit ? 'Guardando...' : 'Guardar' }}
-          </button>
+      <!-- SETTINGS SECTION -->
+      <div class="settings-section">
+          <h3>⚙️ Configuración</h3>
+          <div class="settings-content">
+              <label>Monto de Seña:</label>
+              <div class="input-wrapper">
+                  <span class="currency-prefix">$</span>
+                  <input type="number" min="0" [(ngModel)]="depositAmount" placeholder="Ej: 5000">
+              </div>
+              <button class="btn-save" (click)="saveDepositAmount()" [disabled]="isSavingDeposit">
+                  {{ isSavingDeposit ? 'Guardando...' : 'Guardar' }}
+              </button>
+          </div>
+          <div class="toast toast-success" *ngIf="depositSaveSuccess">
+              ✅ Monto actualizado
+          </div>
+          <p class="error" *ngIf="depositSaveError">{{ depositSaveError }}</p>
       </div>
 
       <!-- COMPACT GRID -->
