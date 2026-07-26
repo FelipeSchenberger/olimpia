@@ -4,6 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
 import { AuthService } from '../../services/auth.service';
 import { SettingsService } from '../../services/settings.service';
+import {
+  AdminBookingsService,
+  Booking,
+} from '../../services/admin-bookings.service';
 
 @Component({
   selector: 'app-admin',
@@ -16,20 +20,32 @@ export class Admin implements OnInit {
   private slotsService = inject(SlotsService);
   private authService = inject(AuthService);
   private settingsService = inject(SettingsService);
+  private adminBookingsService = inject(AdminBookingsService);
   private cdr = inject(ChangeDetectorRef);
 
+  // Navigation
+  activeTab: 'slots' | 'bookings' = 'slots';
+
+  // Slots state
   date: string = new Date().toISOString().split('T')[0];
   slots: any[] = [];
   isLoading: boolean = false;
   courtId: number = 1;
 
-  // Settings State
+  // Bookings state
+  bookings: Booking[] = [];
+  isLoadingBookings: boolean = false;
+  bookingsStatusFilter: string = '';
+  bookingsDateFilter: string = '';
+  bookingsError: string = '';
+
+  // Settings state
   depositAmount: number = 0;
   isSavingDeposit: boolean = false;
   depositSaveSuccess: boolean = false;
   depositSaveError: string = '';
 
-  // Modal State
+  // Modal state
   selectedSlot: any = null;
   clientNameInput: string = '';
   modalError: string = '';
@@ -45,7 +61,6 @@ export class Admin implements OnInit {
   }
 
   ngOnInit() {
-    // If already authenticated (session restored), load data
     if (this.isAuthenticated) {
       this.loadSlots();
       this.loadSettings();
@@ -60,7 +75,10 @@ export class Admin implements OnInit {
     this.loginLoading = true;
     this.loginError = '';
 
-    const { error } = await this.authService.signIn(this.emailInput, this.passwordInput);
+    const { error } = await this.authService.signIn(
+      this.emailInput,
+      this.passwordInput,
+    );
 
     this.loginLoading = false;
     if (error) {
@@ -75,6 +93,16 @@ export class Admin implements OnInit {
   async logout() {
     await this.authService.signOut();
     this.slots = [];
+    this.bookings = [];
+    this.cdr.detectChanges();
+  }
+
+  setTab(tab: 'slots' | 'bookings') {
+    if (this.activeTab === tab) return;
+    this.activeTab = tab;
+    if (tab === 'bookings' && this.bookings.length === 0) {
+      this.loadBookings();
+    }
     this.cdr.detectChanges();
   }
 
@@ -95,6 +123,7 @@ export class Admin implements OnInit {
       },
       error: (err) => {
         console.error(err);
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
     });
@@ -141,6 +170,48 @@ export class Admin implements OnInit {
     });
   }
 
+  loadBookings() {
+    this.isLoadingBookings = true;
+    this.bookingsError = '';
+    this.adminBookingsService
+      .getBookings({
+        status: this.bookingsStatusFilter || undefined,
+        date: this.bookingsDateFilter || undefined,
+      })
+      .subscribe({
+        next: (data) => {
+          this.bookings = data;
+          this.isLoadingBookings = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error loading bookings', err);
+          this.bookingsError = 'Error al cargar las reservas';
+          this.isLoadingBookings = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  confirmBooking(booking: Booking) {
+    if (
+      !confirm(
+        `¿Confirmar manualmente el turno de ${booking.clientName ?? 'cliente'} (${booking.startTime})?`,
+      )
+    )
+      return;
+
+    this.adminBookingsService.confirmBooking(booking.id).subscribe({
+      next: () => {
+        this.loadBookings();
+      },
+      error: (err) => {
+        console.error('Error confirming booking', err);
+        alert('No se pudo confirmar el turno');
+      },
+    });
+  }
+
   openModal(slot: any) {
     this.selectedSlot = slot;
     this.clientNameInput = slot.clientName || '';
@@ -174,7 +245,11 @@ export class Admin implements OnInit {
     }
   }
 
-  private updateStatus(status: string, clientName: string | null, type: string) {
+  private updateStatus(
+    status: string,
+    clientName: string | null,
+    type: string,
+  ) {
     this.isLoading = true;
     this.slotsService
       .updateStatus(this.selectedSlot.id, status, clientName || undefined, type)
