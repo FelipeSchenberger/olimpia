@@ -2,9 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BookingsService {
@@ -62,6 +64,51 @@ export class BookingsService {
     return {
       initPoint: preference.initPoint,
     };
+  }
+
+  async getBookings(filters: { status?: string; date?: string }) {
+    const where: Prisma.AppointmentWhereInput = {};
+
+    if (filters.status) {
+      const statuses = filters.status.split(',').map((s) => s.trim());
+      where.status = { in: statuses };
+    } else {
+      // Por defecto, excluir AVAILABLE para mostrar solo lo relevante
+      where.status = { in: ['PENDING', 'BOOKED', 'FIXED'] };
+    }
+
+    if (filters.date) {
+      const dateObj = new Date(filters.date);
+      where.date = { equals: dateObj };
+    }
+
+    return this.prisma.appointment.findMany({
+      where,
+      orderBy: [
+        { date: 'desc' },
+        { startTime: 'asc' },
+      ],
+      take: 200,
+    });
+  }
+
+  async confirmBooking(id: number) {
+    const slot = await this.prisma.appointment.findUnique({ where: { id } });
+
+    if (!slot) {
+      throw new NotFoundException('Turno no encontrado');
+    }
+
+    if (slot.status !== 'PENDING') {
+      throw new BadRequestException(
+        `El turno no está en estado PENDING (estado actual: ${slot.status})`,
+      );
+    }
+
+    return this.prisma.appointment.update({
+      where: { id },
+      data: { status: 'BOOKED', expiresAt: null },
+    });
   }
 
   async handleWebhook(data: {

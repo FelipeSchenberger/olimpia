@@ -1,5 +1,5 @@
 <div class="admin-container">
-  
+
   <!-- LOGIN SECTION -->
   <div class="login-box" *ngIf="!isAuthenticated">
       <h2>🔐 Acceso Administrativo</h2>
@@ -26,16 +26,9 @@
   <!-- ADMIN PANEL -->
   <div class="panel" *ngIf="isAuthenticated">
       <div class="header">
-          <div class="date-selector">
-              <label>Fecha:</label>
-              <input type="date" [(ngModel)]="date" (change)="loadSlots()">
+          <div class="header-left">
+              <span class="panel-title">Panel Administrativo</span>
           </div>
-
-          <div class="court-tabs">
-              <button [class.active]="courtId === 1" (click)="setCourt(1)">Cancha 1</button>
-              <button [class.active]="courtId === 2" (click)="setCourt(2)">Cancha 2</button>
-          </div>
-
           <button class="btn-logout" (click)="logout()">Salir</button>
       </div>
 
@@ -48,30 +41,135 @@
           </button>
       </div>
 
-      <!-- COMPACT GRID -->
-      <div class="slots-compact-grid">
-          <div *ngIf="isLoading" class="loading-overlay">
-              <div class="spinner"></div> Cargando turnos...
+      <!-- TAB NAVIGATION -->
+      <div class="tab-nav">
+          <button class="tab-btn" [class.active]="activeTab === 'slots'" (click)="setTab('slots')">
+              📅 Turnos
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'bookings'" (click)="setTab('bookings')">
+              🧾 Reservas
+          </button>
+      </div>
+
+      <!-- ==================== TAB: TURNOS ==================== -->
+      <div *ngIf="activeTab === 'slots'">
+          <div class="slots-controls">
+              <div class="date-selector">
+                  <label>Fecha:</label>
+                  <input type="date" [(ngModel)]="date" (change)="loadSlots()">
+              </div>
+              <div class="court-tabs">
+                  <button [class.active]="courtId === 1" (click)="setCourt(1)">Cancha 1</button>
+                  <button [class.active]="courtId === 2" (click)="setCourt(2)">Cancha 2</button>
+              </div>
           </div>
 
-          <ng-container *ngIf="!isLoading">
-            <div *ngFor="let slot of slots" 
-                 class="slot-btn" 
-                 [ngClass]="{
-                     'available': slot.status === 'AVAILABLE',
-                     'booked': slot.status === 'BOOKED' && slot.type !== 'BIRTHDAY',
-                     'fixed': slot.status === 'FIXED',
-                     'birthday': slot.type === 'BIRTHDAY'
-                 }"
-                 (click)="openModal(slot)">
-                {{ slot.startTime }}
-            </div>
-            
-            <div *ngIf="slots.length === 0" class="no-slots-msg">
-                No hay turnos disponibles para mostrar.
-                <button (click)="loadSlots()">Reintentar</button>
-            </div>
-          </ng-container>
+          <!-- COMPACT GRID -->
+          <div class="slots-compact-grid">
+              <div *ngIf="isLoading" class="loading-overlay">
+                  <div class="spinner"></div> Cargando turnos...
+              </div>
+
+              <ng-container *ngIf="!isLoading">
+                <div *ngFor="let slot of slots"
+                     class="slot-btn"
+                     [ngClass]="{
+                         'available': slot.status === 'AVAILABLE',
+                         'booked': slot.status === 'BOOKED' && slot.type !== 'BIRTHDAY',
+                         'fixed': slot.status === 'FIXED',
+                         'birthday': slot.type === 'BIRTHDAY',
+                         'pending': slot.status === 'PENDING'
+                     }"
+                     (click)="openModal(slot)">
+                   {{ slot.startTime }}
+                </div>
+
+                <div *ngIf="slots.length === 0" class="no-slots-msg">
+                    No hay turnos disponibles para mostrar.
+                    <button (click)="loadSlots()">Reintentar</button>
+                </div>
+              </ng-container>
+          </div>
+      </div>
+
+      <!-- ==================== TAB: RESERVAS ==================== -->
+      <div *ngIf="activeTab === 'bookings'" class="bookings-section">
+          <div class="bookings-filters">
+              <div class="filter-group">
+                  <label>Fecha:</label>
+                  <input type="date" [(ngModel)]="bookingsDateFilter">
+              </div>
+              <div class="filter-group">
+                  <label>Estado:</label>
+                  <select [(ngModel)]="bookingsStatusFilter">
+                      <option value="">Todos (sin AVAILABLE)</option>
+                      <option value="PENDING">Pendientes</option>
+                      <option value="BOOKED">Confirmadas</option>
+                      <option value="PENDING,BOOKED">Pendientes + Confirmadas</option>
+                      <option value="FIXED">Fijos</option>
+                  </select>
+              </div>
+              <button class="btn-filter" (click)="loadBookings()">🔍 Buscar</button>
+          </div>
+
+          <div *ngIf="isLoadingBookings" class="loading-overlay">
+              <div class="spinner"></div> Cargando reservas...
+          </div>
+
+          <p class="error" *ngIf="bookingsError">{{ bookingsError }}</p>
+
+          <div *ngIf="!isLoadingBookings && bookings.length === 0 && !bookingsError" class="no-slots-msg">
+              No se encontraron reservas con los filtros aplicados.
+          </div>
+
+          <div *ngIf="!isLoadingBookings && bookings.length > 0" class="bookings-table-wrapper">
+              <table class="bookings-table">
+                  <thead>
+                      <tr>
+                          <th>Fecha</th>
+                          <th>Horario</th>
+                          <th>Cancha</th>
+                          <th>Cliente</th>
+                          <th>Teléfono</th>
+                          <th>Estado</th>
+                          <th>Pago</th>
+                          <th>Acciones</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let b of bookings">
+                          <td>{{ b.date | date:'dd/MM/yyyy' }}</td>
+                          <td class="time-cell">{{ b.startTime }} - {{ b.endTime }}</td>
+                          <td>C{{ b.courtId }}</td>
+                          <td>{{ b.clientName ?? '-' }}</td>
+                          <td>{{ b.clientPhone ?? '-' }}</td>
+                          <td>
+                              <span class="status-badge"
+                                    [ngClass]="{
+                                        'badge-pending': b.status === 'PENDING',
+                                        'badge-booked': b.status === 'BOOKED',
+                                        'badge-fixed': b.status === 'FIXED'
+                                    }">
+                                  {{ b.status }}
+                              </span>
+                          </td>
+                          <td class="payment-cell">
+                              <span *ngIf="b.paymentId" title="{{ b.paymentId }}">
+                                  #{{ b.paymentId.slice(-6) }}
+                              </span>
+                              <span *ngIf="!b.paymentId" class="no-payment">—</span>
+                          </td>
+                          <td>
+                              <button *ngIf="b.status === 'PENDING'"
+                                      class="btn-confirm"
+                                      (click)="confirmBooking(b)">
+                                  ✅ Confirmar
+                              </button>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
       </div>
   </div>
 
@@ -80,22 +178,22 @@
       <div class="modal">
           <h3>Gestión de Turno: {{ selectedSlot.startTime }}</h3>
           <p class="status-text">Estado actual: {{ selectedSlot.status }} - {{ selectedSlot.type }}</p>
-          
+
           <div class="form-group">
               <label>Cliente:</label>
               <input type="text" [(ngModel)]="clientNameInput" placeholder="Nombre completo">
           </div>
-          
+
           <div class="modal-actions">
               <div class="grid-actions">
                   <button class="btn-book" (click)="saveSlot('BOOKED')">Reservar Normal</button>
                   <button class="btn-birthday" (click)="saveSlot('BIRTHDAY')">🎁 Cumpleaños</button>
                   <button class="btn-fixed" (click)="saveSlot('FIXED')">📌 Hacer Fijo</button>
               </div>
-              
+
               <button class="btn-free" (click)="saveSlot('AVAILABLE')">♻️ Liberar Turno</button>
           </div>
-          
+
           <p class="error" *ngIf="modalError">{{ modalError }}</p>
 
           <button class="btn-close" (click)="closeModal()">Cancelar</button>

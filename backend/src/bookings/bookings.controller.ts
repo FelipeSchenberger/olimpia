@@ -1,5 +1,16 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { BookingsService } from './bookings.service';
+import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 
 @Controller('bookings')
 export class BookingsController {
@@ -18,6 +29,21 @@ export class BookingsController {
       clientName,
       clientPhone,
     );
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Get()
+  async getBookings(
+    @Query('status') status?: string,
+    @Query('date') date?: string,
+  ) {
+    return this.bookingsService.getBookings({ status, date });
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Patch(':id/confirm')
+  async confirmBooking(@Param('id', ParseIntPipe) id: number) {
+    return this.bookingsService.confirmBooking(id);
   }
 
   @Post('webhook')
