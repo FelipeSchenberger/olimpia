@@ -26,6 +26,8 @@ export class Admin implements OnInit {
   // Settings State
   depositAmount: number = 0;
   isSavingDeposit: boolean = false;
+  depositSaveSuccess: boolean = false;
+  depositSaveError: string = '';
 
   // Modal State
   selectedSlot: any = null;
@@ -109,15 +111,30 @@ export class Admin implements OnInit {
   }
 
   saveDepositAmount() {
+    this.depositSaveError = '';
+    this.depositSaveSuccess = false;
+
+    if (this.depositAmount < 0) {
+      this.depositSaveError = 'El monto no puede ser negativo';
+      return;
+    }
+
     this.isSavingDeposit = true;
     this.settingsService.updateDepositAmount(this.depositAmount).subscribe({
       next: (res) => {
         this.depositAmount = Number(res.value);
         this.isSavingDeposit = false;
+        this.depositSaveSuccess = true;
         this.cdr.detectChanges();
+        
+        setTimeout(() => {
+          this.depositSaveSuccess = false;
+          this.cdr.detectChanges();
+        }, 3000);
       },
       error: (err) => {
         console.error('Error saving deposit', err);
+        this.depositSaveError = 'Ocurrió un error al guardar el monto';
         this.isSavingDeposit = false;
         this.cdr.detectChanges();
       },
