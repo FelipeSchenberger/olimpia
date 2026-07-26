@@ -47,7 +47,13 @@ export class BookingsController {
   }
 
   @Post('webhook')
-  async handleWebhook(@Body() data: any) {
+  async handleWebhook(
+    @Body()
+    data: {
+      type?: string;
+      data?: { id?: string; external_reference?: string };
+    },
+  ) {
     return this.bookingsService.handleWebhook(data);
   }
 }

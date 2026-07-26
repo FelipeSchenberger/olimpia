@@ -84,10 +84,7 @@ export class BookingsService {
 
     return this.prisma.appointment.findMany({
       where,
-      orderBy: [
-        { date: 'desc' },
-        { startTime: 'asc' },
-      ],
+      orderBy: [{ date: 'desc' }, { startTime: 'asc' }],
       take: 200,
     });
   }
