@@ -88,7 +88,8 @@
                          'booked': slot.status === 'BOOKED' && slot.type !== 'BIRTHDAY',
                          'fixed': slot.status === 'FIXED',
                          'birthday': slot.type === 'BIRTHDAY',
-                         'pending': slot.status === 'PENDING'
+                         'pending': slot.status === 'PENDING',
+                         'pending-payment': slot.status === 'PENDING_PAYMENT'
                      }"
                      (click)="openModal(slot)">
                    {{ slot.startTime }}
@@ -113,6 +114,7 @@
                   <label>Estado:</label>
                   <select [(ngModel)]="bookingsStatusFilter">
                       <option value="">Todos (sin AVAILABLE)</option>
+                      <option value="PENDING_PAYMENT">En proceso de pago</option>
                       <option value="PENDING">Pendientes</option>
                       <option value="BOOKED">Confirmadas</option>
                       <option value="PENDING,BOOKED">Pendientes + Confirmadas</option>
@@ -157,6 +159,7 @@
                               <span class="status-badge"
                                     [ngClass]="{
                                         'badge-pending': b.status === 'PENDING',
+                                        'badge-pending-payment': b.status === 'PENDING_PAYMENT',
                                         'badge-booked': b.status === 'BOOKED',
                                         'badge-fixed': b.status === 'FIXED'
                                     }">
@@ -174,6 +177,12 @@
                                       class="btn-confirm"
                                       (click)="confirmBooking(b)">
                                   ✅ Confirmar
+                              </button>
+                              <button *ngIf="b.status === 'PENDING_PAYMENT'"
+                                      class="btn-release"
+                                      (click)="releaseHold(b)"
+                                      title="Vencimiento: {{ b.expiresAt | date:'shortTime' }}">
+                                  🔓 Liberar Hold
                               </button>
                           </td>
                       </tr>

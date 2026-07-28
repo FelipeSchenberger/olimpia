@@ -43,6 +43,15 @@
       </div>
   </div>
   
+  <div class="info-banner" *ngIf="!isLoading">
+    <div class="info-icon">ℹ️</div>
+    <div class="info-text">
+      <strong>¿Querés un turno Fijo o festejar un Cumpleaños?</strong>
+      <p>Estos turnos se gestionan de manera directa. Escribinos para coordinar.</p>
+    </div>
+    <a href="https://wa.me/5493442472109" target="_blank" class="btn-whatsapp-banner">Contactar</a>
+  </div>
+
   <div class="loading-container" *ngIf="isLoading">
       <div class="spinner"></div>
       <p>Cargando disponibilidad...</p>
@@ -54,12 +63,15 @@
           class="slot-btn" 
           [style.animation-delay]="i * 50 + 'ms'"
           [class.available]="slot.status === 'AVAILABLE'"
-          [class.booked]="slot.status !== 'AVAILABLE'"
+          [class.pending-payment]="slot.status === 'PENDING_PAYMENT'"
+          [class.booked]="slot.status !== 'AVAILABLE' && slot.status !== 'PENDING_PAYMENT'"
           [disabled]="slot.status !== 'AVAILABLE'"
           (click)="reservar(slot)">
           
           <span class="time">{{ slot.startTime }}</span>
-          <span class="status-text">{{ slot.status === 'AVAILABLE' ? 'LIBRE' : 'OCUPADO' }}</span>
+          <span class="status-text">
+            {{ slot.status === 'AVAILABLE' ? 'LIBRE' : slot.status === 'PENDING_PAYMENT' ? 'EN PAGO' : 'OCUPADO' }}
+          </span>
       </button>
   </div>
 
