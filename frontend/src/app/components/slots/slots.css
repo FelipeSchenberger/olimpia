@@ -20,6 +20,65 @@
   margin: 0;
 }
 
+/* Info Banner */
+.info-banner {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.info-icon {
+  font-size: 2rem;
+}
+
+.info-text strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  color: var(--primary-color);
+}
+
+.info-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.btn-whatsapp-banner {
+  margin-left: auto;
+  background: #25D366;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-whatsapp-banner:hover {
+  background: #1eb956;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .info-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  .btn-whatsapp-banner {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+
 /* Date Navigator with Arrows */
 .date-navigator {
   display: flex;
@@ -245,6 +304,13 @@
   color: rgba(255, 255, 255, 0.3); /* Dimmed text via color, not opacity */
   cursor: not-allowed;
   /* Removed opacity: 0.7 to avoid animation conflict */
+}
+
+.slot-btn.pending-payment {
+  background-color: rgba(255, 167, 38, 0.1);
+  border-color: #ffa726;
+  color: #ffa726;
+  cursor: not-allowed;
 }
 
 /* Loading & Empty States */

@@ -212,6 +212,25 @@ export class Admin implements OnInit {
     });
   }
 
+  releaseHold(booking: Booking) {
+    if (
+      !confirm(
+        `¿Seguro que querés liberar este turno retenido (${booking.startTime})?`,
+      )
+    )
+      return;
+
+    this.adminBookingsService.releaseHold(booking.id).subscribe({
+      next: () => {
+        this.loadBookings();
+      },
+      error: (err) => {
+        console.error('Error releasing hold', err);
+        alert('No se pudo liberar el turno (puede que ya esté liberado, o no exista el endpoint aún).');
+      },
+    });
+  }
+
   openModal(slot: any) {
     this.selectedSlot = slot;
     this.clientNameInput = slot.clientName || '';

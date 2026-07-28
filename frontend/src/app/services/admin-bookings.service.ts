@@ -9,7 +9,7 @@ export interface Booking {
   date: string;
   startTime: string;
   endTime: string;
-  status: 'PENDING' | 'BOOKED' | 'FIXED' | 'AVAILABLE';
+  status: 'PENDING' | 'PENDING_PAYMENT' | 'BOOKED' | 'FIXED' | 'AVAILABLE';
   type?: string;
   clientName?: string;
   clientPhone?: string;
@@ -54,6 +54,13 @@ export class AdminBookingsService {
     return this.http.patch<Booking>(
       `${this.apiUrl}/${id}/confirm`,
       {},
+      { headers: this.authHeaders },
+    );
+  }
+
+  releaseHold(id: number): Observable<Booking> {
+    return this.http.delete<Booking>(
+      `${this.apiUrl}/${id}/hold`,
       { headers: this.authHeaders },
     );
   }
