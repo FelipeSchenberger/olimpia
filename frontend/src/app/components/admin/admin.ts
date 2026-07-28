@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
@@ -14,6 +14,7 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {

@@ -1,13 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-hero',
   imports: [],
   templateUrl: './hero.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './hero.css',
 })
 export class Hero {
+  private platformId = inject(PLATFORM_ID);
+
   scrollToSlots() {
+    // Guard: this function uses browser-only APIs — skip during SSR
+    if (!isPlatformBrowser(this.platformId)) return;
+
     const target = document.getElementById('turnos');
     if (!target) return;
 
@@ -35,3 +42,4 @@ export class Hero {
     requestAnimationFrame(animation);
   }
 }
+
