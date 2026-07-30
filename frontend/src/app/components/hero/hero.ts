@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
   selector: 'app-hero',
   imports: [],
   templateUrl: './hero.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './hero.css',
 })
 export class Hero {

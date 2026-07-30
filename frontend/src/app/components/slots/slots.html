@@ -63,14 +63,17 @@
           class="slot-btn" 
           [style.animation-delay]="i * 50 + 'ms'"
           [class.available]="slot.status === 'AVAILABLE'"
-          [class.pending-payment]="slot.status === 'PENDING_PAYMENT'"
-          [class.booked]="slot.status !== 'AVAILABLE' && slot.status !== 'PENDING_PAYMENT'"
+          [class.pending-payment]="slot.status === 'PENDING'"
+          [class.booked]="slot.status !== 'AVAILABLE' && slot.status !== 'PENDING'"
           [disabled]="slot.status !== 'AVAILABLE'"
           (click)="reservar(slot)">
           
           <span class="time">{{ slot.startTime }}</span>
           <span class="status-text">
-            {{ slot.status === 'AVAILABLE' ? 'LIBRE' : slot.status === 'PENDING_PAYMENT' ? 'EN PAGO' : 'OCUPADO' }}
+            {{ slot.status === 'AVAILABLE' ? 'LIBRE' : slot.status === 'PENDING' ? 'EN PAGO' : 'OCUPADO' }}
+          </span>
+          <span class="countdown" *ngIf="slot.status === 'PENDING' && getCountdown(slot)">
+            ⏱ {{ getCountdown(slot) }}
           </span>
       </button>
   </div>

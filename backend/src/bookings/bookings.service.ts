@@ -55,10 +55,13 @@ export class BookingsService {
       startTime,
     );
 
-    // 4. Save Preference ID
+    // 4. Save Preference ID & depositPaid
     await this.prisma.appointment.update({
       where: { id: slot.id },
-      data: { preferenceId: preference.preferenceId },
+      data: {
+        preferenceId: preference.preferenceId,
+        depositPaid: preference.depositAmount,
+      },
     });
 
     return {
@@ -150,5 +153,38 @@ export class BookingsService {
       }
     }
     return { received: true };
+  }
+
+  async releaseHold(id: number) {
+    const slot = await this.prisma.appointment.findUnique({ where: { id } });
+    if (!slot) {
+      throw new NotFoundException('Turno no encontrado');
+    }
+    if (slot.status !== 'PENDING') {
+      throw new BadRequestException('El turno no está en estado PENDING');
+    }
+
+    return this.prisma.appointment.update({
+      where: { id },
+      data: {
+        status: 'AVAILABLE',
+        clientName: null,
+        clientPhone: null,
+        expiresAt: null,
+        preferenceId: null,
+        paymentId: null,
+      },
+    });
+  }
+
+  async getPaymentHistory() {
+    return this.prisma.appointment.findMany({
+      where: {
+        paymentId: { not: null },
+        status: 'BOOKED',
+      },
+      orderBy: { date: 'desc' },
+      take: 100,
+    });
   }
 }

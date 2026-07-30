@@ -7,7 +7,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './payment-status.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './payment-status.component.css'
 })
 export class PaymentStatusComponent implements OnInit {

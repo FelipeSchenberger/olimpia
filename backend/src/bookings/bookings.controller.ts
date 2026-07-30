@@ -8,6 +8,7 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
@@ -55,5 +56,17 @@ export class BookingsController {
     },
   ) {
     return this.bookingsService.handleWebhook(data);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Delete(':id/hold')
+  async releaseHold(@Param('id', ParseIntPipe) id: number) {
+    return this.bookingsService.releaseHold(id);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Get('payments')
+  async getPaymentHistory() {
+    return this.bookingsService.getPaymentHistory();
   }
 }

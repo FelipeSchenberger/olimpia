@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-
 const ALLOWED_ORIGINS = [
   'https://olimpiafutbol5.com.ar',
   'https://www.olimpiafutbol5.com.ar',
@@ -12,10 +11,19 @@ const ALLOWED_ORIGINS = [
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       // Allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
-      if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+        return;
+      }
       callback(new Error(`CORS: origin '${origin}' not allowed`));
     },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

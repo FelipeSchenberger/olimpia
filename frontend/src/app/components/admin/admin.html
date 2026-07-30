@@ -32,25 +32,6 @@
           <button class="btn-logout" (click)="logout()">Salir</button>
       </div>
 
-      <!-- SETTINGS SECTION -->
-      <div class="settings-section">
-          <h3>⚙️ Configuración</h3>
-          <div class="settings-content">
-              <label>Monto de Seña:</label>
-              <div class="input-wrapper">
-                  <span class="currency-prefix">$</span>
-                  <input type="number" min="0" [(ngModel)]="depositAmount" placeholder="Ej: 5000">
-              </div>
-              <button class="btn-save" (click)="saveDepositAmount()" [disabled]="isSavingDeposit">
-                  {{ isSavingDeposit ? 'Guardando...' : 'Guardar' }}
-              </button>
-          </div>
-          <div class="toast toast-success" *ngIf="depositSaveSuccess">
-              ✅ Monto actualizado
-          </div>
-          <p class="error" *ngIf="depositSaveError">{{ depositSaveError }}</p>
-      </div>
-
       <!-- TAB NAVIGATION -->
       <div class="tab-nav">
           <button class="tab-btn" [class.active]="activeTab === 'slots'" (click)="setTab('slots')">
@@ -58,6 +39,12 @@
           </button>
           <button class="tab-btn" [class.active]="activeTab === 'bookings'" (click)="setTab('bookings')">
               🧾 Reservas
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'payments'" (click)="setTab('payments')">
+              💰 Señas
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'prices'" (click)="setTab('prices')">
+              ⚙️ Precios
           </button>
       </div>
 
@@ -174,11 +161,6 @@
                           </td>
                           <td>
                               <button *ngIf="b.status === 'PENDING'"
-                                      class="btn-confirm"
-                                      (click)="confirmBooking(b)">
-                                  ✅ Confirmar
-                              </button>
-                              <button *ngIf="b.status === 'PENDING_PAYMENT'"
                                       class="btn-release"
                                       (click)="releaseHold(b)"
                                       title="Vencimiento: {{ b.expiresAt | date:'shortTime' }}">
@@ -188,6 +170,86 @@
                       </tr>
                   </tbody>
               </table>
+          </div>
+      </div>
+
+      <!-- ==================== TAB: SEÑAS ==================== -->
+      <div *ngIf="activeTab === 'payments'" class="bookings-section">
+          <h3>Historial de Señas Pagadas</h3>
+          
+          <div *ngIf="isLoadingPayments" class="loading-overlay">
+              <div class="spinner"></div> Cargando historial...
+          </div>
+
+          <div *ngIf="!isLoadingPayments && payments.length === 0" class="no-slots-msg">
+              No hay registros de pagos completados.
+          </div>
+
+          <div *ngIf="!isLoadingPayments && payments.length > 0" class="bookings-table-wrapper">
+              <table class="bookings-table">
+                  <thead>
+                      <tr>
+                          <th>Fecha</th>
+                          <th>Horario</th>
+                          <th>Cliente</th>
+                          <th>ID Pago MP</th>
+                          <th>Seña (10%)</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let p of payments">
+                          <td>{{ p.date | date:'dd/MM/yyyy' }}</td>
+                          <td class="time-cell">{{ p.startTime }}</td>
+                          <td>{{ p.clientName ?? '-' }}</td>
+                          <td class="payment-cell">
+                              <span title="{{ p.paymentId }}">
+                                  #{{ p.paymentId?.slice(-6) }}
+                              </span>
+                          </td>
+                          <td class="deposit-cell">
+                              <strong>${{ p.depositPaid || 0 }}</strong>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- ==================== TAB: PRECIOS ==================== -->
+      <div *ngIf="activeTab === 'prices'" class="prices-section">
+          <h3>Precios por Horario</h3>
+          <p class="help-text">La seña se calcula automáticamente como el 10% del precio total que configures aquí.</p>
+          
+          <div *ngIf="isLoadingPrices" class="loading-overlay">
+              <div class="spinner"></div> Cargando precios...
+          </div>
+
+          <div *ngIf="!isLoadingPrices" class="prices-grid">
+              <div class="price-row header-row">
+                  <div>Horario</div>
+                  <div>Precio Total ($)</div>
+                  <div>Seña a Cobrar ($)</div>
+              </div>
+              <div class="price-row" *ngFor="let p of prices">
+                  <div class="time-label">{{ p.startTime }}</div>
+                  <div class="input-wrapper">
+                      <span class="currency-prefix">$</span>
+                      <input type="number" min="0" [(ngModel)]="p.price">
+                  </div>
+                  <div class="calculated-deposit">
+                      ${{ (p.price * 0.1) | number:'1.0-0' }}
+                  </div>
+              </div>
+              
+              <div class="prices-actions">
+                  <button class="btn-save" (click)="savePrices()" [disabled]="isSavingPrices">
+                      {{ isSavingPrices ? 'Guardando...' : 'Guardar Precios' }}
+                  </button>
+              </div>
+              <div class="toast toast-success" *ngIf="pricesSaveSuccess">
+                  ✅ Precios guardados correctamente
+              </div>
+              <p class="error" *ngIf="pricesSaveError">{{ pricesSaveError }}</p>
           </div>
       </div>
   </div>

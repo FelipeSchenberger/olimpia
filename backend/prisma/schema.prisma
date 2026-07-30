@@ -20,6 +20,7 @@ model Appointment {
   preferenceId String?   // MP Preference ID
   paymentId    String?   // MP Payment ID
   expiresAt    DateTime? // Para turnos PENDING
+  depositPaid  Float?    // Monto de seña pagado
   createdAt    DateTime  @default(now())
 }
 
@@ -37,5 +38,12 @@ model FixedSlot {
 model Setting {
   key       String   @id   // e.g. "deposit_amount"
   value     String         // stored as string, parsed by consumer
+  updatedAt DateTime @updatedAt
+}
+
+model SlotPricing {
+  id        Int      @id @default(autoincrement())
+  startTime String   @unique
+  price     Float
   updatedAt DateTime @updatedAt
 }

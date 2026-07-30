@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
 import { AuthService } from '../../services/auth.service';
-import { SettingsService } from '../../services/settings.service';
+import { PricingService, SlotPricing } from '../../services/pricing.service';
 import {
   AdminBookingsService,
   Booking,
@@ -14,18 +14,18 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
   private slotsService = inject(SlotsService);
   private authService = inject(AuthService);
-  private settingsService = inject(SettingsService);
+  private pricingService = inject(PricingService);
   private adminBookingsService = inject(AdminBookingsService);
   private cdr = inject(ChangeDetectorRef);
 
   // Navigation
-  activeTab: 'slots' | 'bookings' = 'slots';
+  activeTab: 'slots' | 'bookings' | 'payments' | 'prices' = 'slots';
 
   // Slots state
   date: string = new Date().toISOString().split('T')[0];
@@ -40,11 +40,16 @@ export class Admin implements OnInit {
   bookingsDateFilter: string = '';
   bookingsError: string = '';
 
-  // Settings state
-  depositAmount: number = 0;
-  isSavingDeposit: boolean = false;
-  depositSaveSuccess: boolean = false;
-  depositSaveError: string = '';
+  // Prices state
+  prices: SlotPricing[] = [];
+  isLoadingPrices: boolean = false;
+  isSavingPrices: boolean = false;
+  pricesSaveSuccess: boolean = false;
+  pricesSaveError: string = '';
+
+  // Payments history
+  payments: Booking[] = [];
+  isLoadingPayments: boolean = false;
 
   // Modal state
   selectedSlot: any = null;
@@ -64,7 +69,7 @@ export class Admin implements OnInit {
   ngOnInit() {
     if (this.isAuthenticated) {
       this.loadSlots();
-      this.loadSettings();
+      this.loadPrices();
     }
   }
 
@@ -86,7 +91,7 @@ export class Admin implements OnInit {
       this.loginError = 'Credenciales inválidas';
     } else {
       this.loadSlots();
-      this.loadSettings();
+      this.loadPrices();
     }
     this.cdr.detectChanges();
   }
@@ -98,11 +103,15 @@ export class Admin implements OnInit {
     this.cdr.detectChanges();
   }
 
-  setTab(tab: 'slots' | 'bookings') {
+  setTab(tab: 'slots' | 'bookings' | 'payments' | 'prices') {
     if (this.activeTab === tab) return;
     this.activeTab = tab;
     if (tab === 'bookings' && this.bookings.length === 0) {
       this.loadBookings();
+    } else if (tab === 'payments' && this.payments.length === 0) {
+      this.loadPaymentHistory();
+    } else if (tab === 'prices' && this.prices.length === 0) {
+      this.loadPrices();
     }
     this.cdr.detectChanges();
   }
@@ -130,44 +139,66 @@ export class Admin implements OnInit {
     });
   }
 
-  loadSettings() {
-    this.settingsService.getDepositAmount().subscribe({
-      next: (amount) => {
-        this.depositAmount = amount;
+  loadPrices() {
+    this.isLoadingPrices = true;
+    this.pricingService.getPrices().subscribe({
+      next: (data) => {
+        // Pre-fill default hours if empty
+        if (data.length === 0) {
+          const hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00'];
+          this.prices = hours.map(h => ({ startTime: h, price: 0 }));
+        } else {
+          this.prices = data;
+        }
+        this.isLoadingPrices = false;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading settings', err),
+      error: (err) => {
+        console.error('Error loading prices', err);
+        this.isLoadingPrices = false;
+        this.cdr.detectChanges();
+      },
     });
   }
 
-  saveDepositAmount() {
-    this.depositSaveError = '';
-    this.depositSaveSuccess = false;
-
-    if (this.depositAmount < 0) {
-      this.depositSaveError = 'El monto no puede ser negativo';
-      return;
-    }
-
-    this.isSavingDeposit = true;
-    this.settingsService.updateDepositAmount(this.depositAmount).subscribe({
-      next: (res) => {
-        this.depositAmount = Number(res.value);
-        this.isSavingDeposit = false;
-        this.depositSaveSuccess = true;
+  savePrices() {
+    this.pricesSaveError = '';
+    this.pricesSaveSuccess = false;
+    this.isSavingPrices = true;
+    
+    this.pricingService.updatePrices(this.prices).subscribe({
+      next: () => {
+        this.isSavingPrices = false;
+        this.pricesSaveSuccess = true;
         this.cdr.detectChanges();
         
         setTimeout(() => {
-          this.depositSaveSuccess = false;
+          this.pricesSaveSuccess = false;
           this.cdr.detectChanges();
         }, 3000);
       },
       error: (err) => {
-        console.error('Error saving deposit', err);
-        this.depositSaveError = 'Ocurrió un error al guardar el monto';
-        this.isSavingDeposit = false;
+        console.error('Error saving prices', err);
+        this.pricesSaveError = 'Ocurrió un error al guardar los precios';
+        this.isSavingPrices = false;
         this.cdr.detectChanges();
       },
+    });
+  }
+
+  loadPaymentHistory() {
+    this.isLoadingPayments = true;
+    this.adminBookingsService.getPaymentHistory().subscribe({
+      next: (data) => {
+        this.payments = data;
+        this.isLoadingPayments = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading payments', err);
+        this.isLoadingPayments = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

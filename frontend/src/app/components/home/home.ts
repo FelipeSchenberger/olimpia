@@ -6,7 +6,7 @@ import { Slots } from '../slots/slots';
   selector: 'app-home',
   imports: [Hero, Slots],
   templateUrl: './home.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './home.css',
 })
 export class Home {
