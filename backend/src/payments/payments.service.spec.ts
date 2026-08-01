@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentsService } from './payments.service';
-import { SettingsService } from '../settings/settings.service';
+import { PricingService } from '../pricing/pricing.service';
 
 describe('PaymentsService', () => {
   let service: PaymentsService;
@@ -10,9 +10,9 @@ describe('PaymentsService', () => {
       providers: [
         PaymentsService,
         {
-          provide: SettingsService,
+          provide: PricingService,
           useValue: {
-            getDepositAmount: jest.fn().mockResolvedValue(5000),
+            getDepositForSlot: jest.fn().mockResolvedValue(5000),
           },
         },
       ],

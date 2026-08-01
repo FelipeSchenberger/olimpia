@@ -55,8 +55,12 @@ export class Slots implements OnInit {
         const diff = expiresTime - now;
 
         if (diff <= 0) {
-          needsReload = true;
           this.countdowns.delete(slot.startTime);
+          // Marcar como AVAILABLE localmente para evitar un loop de recargas
+          // mientras el cron del backend limpia el turno (hasta 60s de delay)
+          slot.status = 'AVAILABLE';
+          slot.expiresAt = null;
+          updated = true;
         } else {
           const m = Math.floor(diff / 60000);
           const s = Math.floor((diff % 60000) / 1000);

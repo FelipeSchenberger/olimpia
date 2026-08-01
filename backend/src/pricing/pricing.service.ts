@@ -29,13 +29,13 @@ export class PricingService {
   async updatePricesBulk(
     prices: { startTime: string; price: number }[],
   ): Promise<void> {
-    // Upsert para cada precio proporcionado
-    for (const p of prices) {
-      await this.prisma.slotPricing.upsert({
+    const upserts = prices.map((p) =>
+      this.prisma.slotPricing.upsert({
         where: { startTime: p.startTime },
         update: { price: p.price },
         create: { startTime: p.startTime, price: p.price },
-      });
-    }
+      }),
+    );
+    await this.prisma.$transaction(upserts);
   }
 }

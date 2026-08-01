@@ -173,6 +173,7 @@ export class BookingsService {
         expiresAt: null,
         preferenceId: null,
         paymentId: null,
+        depositPaid: null,
       },
     });
   }
