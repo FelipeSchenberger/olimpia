@@ -45,7 +45,6 @@ export class Slots implements OnInit {
   }
 
   updateCountdowns() {
-    let needsReload = false;
     let updated = false;
     const now = new Date().getTime();
 
@@ -70,9 +69,7 @@ export class Slots implements OnInit {
       }
     }
     
-    if (needsReload) {
-      this.loadSlots();
-    } else if (updated) {
+    if (updated) {
       this.cdr.detectChanges();
     }
   }

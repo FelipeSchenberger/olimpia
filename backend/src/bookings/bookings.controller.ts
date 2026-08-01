@@ -12,23 +12,19 @@ import {
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
+import { CreateIntentDto } from './dto/create-intent.dto';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Post('intent')
-  async createIntent(
-    @Body('date') date: string,
-    @Body('startTime') startTime: string,
-    @Body('clientName') clientName: string,
-    @Body('clientPhone') clientPhone: string,
-  ) {
+  async createIntent(@Body() body: CreateIntentDto) {
     return this.bookingsService.createIntent(
-      date,
-      startTime,
-      clientName,
-      clientPhone,
+      body.date,
+      body.startTime,
+      body.clientName,
+      body.clientPhone,
     );
   }
 
