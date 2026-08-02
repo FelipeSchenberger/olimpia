@@ -28,6 +28,7 @@ export class CronService {
         expiresAt: null,
         preferenceId: null,
         paymentId: null,
+        depositPaid: null,
       },
     });
 

@@ -1,12 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
 import { BookingsService } from '../../services/bookings.service';
 
-interface PublicSlot {
+export interface PublicSlot {
   startTime: string;
   status: string;
+  expiresAt?: string | null;
 }
 
 @Component({
@@ -14,13 +15,16 @@ interface PublicSlot {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './slots.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './slots.css',
 })
 export class Slots implements OnInit {
   date: string = new Date().toISOString().split('T')[0];
   slots: PublicSlot[] = [];
   isLoading = false;
+  
+  private countdownInterval: any;
+  countdowns: Map<string, string> = new Map();
   
   // Teléfono del complejo para WhatsApp
   private complexPhone = '+5493442472109'; 
@@ -29,6 +33,49 @@ export class Slots implements OnInit {
 
   ngOnInit() {
     this.loadSlots();
+    this.countdownInterval = setInterval(() => {
+      this.updateCountdowns();
+    }, 1000);
+  }
+
+  ngOnDestroy() {
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+  }
+
+  updateCountdowns() {
+    let updated = false;
+    const now = new Date().getTime();
+
+    for (const slot of this.slots) {
+      if (slot.status === 'PENDING' && slot.expiresAt) {
+        const expiresTime = new Date(slot.expiresAt).getTime();
+        const diff = expiresTime - now;
+
+        if (diff <= 0) {
+          this.countdowns.delete(slot.startTime);
+          // Marcar como AVAILABLE localmente para evitar un loop de recargas
+          // mientras el cron del backend limpia el turno (hasta 60s de delay)
+          slot.status = 'AVAILABLE';
+          slot.expiresAt = null;
+          updated = true;
+        } else {
+          const m = Math.floor(diff / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
+          this.countdowns.set(slot.startTime, `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+          updated = true;
+        }
+      }
+    }
+    
+    if (updated) {
+      this.cdr.detectChanges();
+    }
+  }
+
+  getCountdown(slot: PublicSlot): string | null {
+    return this.countdowns.get(slot.startTime) || null;
   }
 
   onDateChange() {

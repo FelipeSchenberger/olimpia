@@ -456,3 +456,57 @@
     font-size: 0.9rem;
     text-align: center;
 }
+
+/* Prices Grid */
+.prices-section {
+    background: #1a1a1a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+.prices-section h3 { margin-top: 0; color: #eee; }
+.help-text { color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.prices-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 600px;
+}
+
+.price-row {
+    display: grid;
+    grid-template-columns: 100px 150px 150px;
+    gap: 1rem;
+    align-items: center;
+    background: #222;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+.header-row {
+    background: transparent;
+    border: none;
+    font-weight: bold;
+    color: #888;
+    padding-bottom: 0;
+}
+
+.time-label {
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: #eee;
+}
+
+.calculated-deposit {
+    color: #4CAF50;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.prices-actions {
+    margin-top: 1.5rem;
+}
+
+.deposit-cell { color: #4CAF50; }

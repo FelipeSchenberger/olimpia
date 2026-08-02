@@ -48,26 +48,34 @@ describe('[Fase 1] SlotsService', () => {
 
     // Simulate that all 15 regular + 2 late night slots exist
     // Simulate that all 15 regular + 2 late night slots exist
-    mockPrismaService.appointment.count.mockResolvedValueOnce(15).mockResolvedValueOnce(2);
+    mockPrismaService.appointment.count
+      .mockResolvedValueOnce(15)
+      .mockResolvedValueOnce(2);
     // When generated is NOT called, these are the findMany calls for getSlotsForDate return:
-    mockPrismaService.appointment.findMany.mockResolvedValueOnce(new Array(15).fill({})).mockResolvedValueOnce(new Array(2).fill({}));
+    mockPrismaService.appointment.findMany
+      .mockResolvedValueOnce(new Array(15).fill({}))
+      .mockResolvedValueOnce(new Array(2).fill({}));
 
     const result = await service.getSlotsForDate(dateStr, 1);
 
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(prisma.appointment.findMany).toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(prisma.appointment.createMany).not.toHaveBeenCalled(); // No slots were generated
     expect(result).toHaveLength(17);
   });
 
   it('should generate missing slots using createMany', async () => {
     const dateStr = '2025-01-01';
-    
+
     // Simulate missing slots: count returns 0
-    mockPrismaService.appointment.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
-    
+    mockPrismaService.appointment.count
+      .mockResolvedValueOnce(0)
+      .mockResolvedValueOnce(0);
+
     // fixedSlots findMany
     mockPrismaService.fixedSlot.findMany.mockResolvedValueOnce([]);
-    
+
     // generateDaySlots -> existingMain, existingLate
     mockPrismaService.appointment.findMany
       .mockResolvedValueOnce([]) // existingMain
@@ -77,7 +85,8 @@ describe('[Fase 1] SlotsService', () => {
       .mockResolvedValueOnce(new Array(2).fill({}));
 
     await service.getSlotsForDate(dateStr, 1);
-    
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(prisma.appointment.createMany).toHaveBeenCalledTimes(2); // One for regular, one for late hours
   });
 });

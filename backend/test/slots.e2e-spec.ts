@@ -27,9 +27,10 @@ describe('[Fase 1] SlotsController (e2e)', () => {
       .expect(200);
 
     expect(Array.isArray(response.body)).toBe(true);
-    if (response.body.length > 0) {
-      expect(response.body[0]).toHaveProperty('startTime');
-      expect(response.body[0]).toHaveProperty('status');
+    const body = response.body as { startTime: string; status: string }[];
+    if (body.length > 0) {
+      expect(body[0]).toHaveProperty('startTime');
+      expect(body[0]).toHaveProperty('status');
     }
   });
 

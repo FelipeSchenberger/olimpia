@@ -17,6 +17,7 @@ export interface Booking {
   preferenceId?: string;
   paymentId?: string;
   expiresAt?: string;
+  depositPaid?: number;
   createdAt: string;
 }
 
@@ -63,5 +64,11 @@ export class AdminBookingsService {
       `${this.apiUrl}/${id}/hold`,
       { headers: this.authHeaders },
     );
+  }
+
+  getPaymentHistory(): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${this.apiUrl}/payments`, {
+      headers: this.authHeaders,
+    });
   }
 }

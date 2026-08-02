@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { FixedSlot } from '@prisma/client';
 
 export interface PublicSlot {
   startTime: string;
   status: string;
+  expiresAt?: string | null;
 }
 
 export interface CreateFixedSlotDto {
@@ -94,29 +94,44 @@ export class SlotsService {
     const slots2 = await this.getSlotsForDate(dateStr, 2);
 
     // Map de tiempos
-    const timeMap = new Map<string, string>();
+    const timeMap = new Map<
+      string,
+      { status: string; expiresAt?: Date | null }
+    >();
 
     // Inicializar con Cancha 1
     slots1.forEach((s) => {
-      timeMap.set(s.startTime, s.status);
+      timeMap.set(s.startTime, { status: s.status, expiresAt: s.expiresAt });
     });
 
     // Comparar con Cancha 2
     // Lógica: Si Cancha 2 está LIBRE, el horario es LIBRE (aunque C1 esté ocupada)
     // Si Cancha 2 está OCUPADA, mantenemos lo que diga C1 (Si C1 libre -> libre, si C1 ocupada -> ocupada)
+    // Si C2 es PENDING y C1 es BOOKED, mostramos PENDING de C2.
     slots2.forEach((s) => {
+      const existing = timeMap.get(s.startTime);
+      if (!existing) return;
 
       if (s.status === 'AVAILABLE') {
-        timeMap.set(s.startTime, 'AVAILABLE');
+        timeMap.set(s.startTime, { status: 'AVAILABLE', expiresAt: null });
+      } else if (existing.status !== 'AVAILABLE' && s.status === 'PENDING') {
+        if (existing.status !== 'PENDING') {
+          timeMap.set(s.startTime, {
+            status: 'PENDING',
+            expiresAt: s.expiresAt,
+          });
+        }
       }
-      // Si s.status != AVAILABLE, no hacemos nada, nos quedamos con el status de C1
-      // (Que si era AVAILABLE, sigue siendolo. Si era BOOKED, ambos son BOOKED).
     });
 
     // Convertir a array
     const publicSlots: PublicSlot[] = [];
-    timeMap.forEach((status, time) => {
-      publicSlots.push({ startTime: time, status });
+    timeMap.forEach((data, time) => {
+      publicSlots.push({
+        startTime: time,
+        status: data.status,
+        expiresAt: data.expiresAt ? data.expiresAt.toISOString() : null,
+      });
     });
 
     // Ordenar: 09..23, 00..01
@@ -218,8 +233,21 @@ export class SlotsService {
   // Helper para generar un solo día (Lógico)
   private async generateDaySlots(logicalDate: Date, courtId: number) {
     const regularHours = [
-      '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00',
-      '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'
+      '09:00',
+      '10:00',
+      '11:00',
+      '12:00',
+      '13:00',
+      '14:00',
+      '15:00',
+      '16:00',
+      '17:00',
+      '18:00',
+      '19:00',
+      '20:00',
+      '21:00',
+      '22:00',
+      '23:00',
     ];
     const lateHours = ['00:00', '01:00'];
 
@@ -241,14 +269,14 @@ export class SlotsService {
       select: { startTime: true },
     });
 
-    const existingMainTimes = new Set(existingMain.map(s => s.startTime));
-    const missingMain = regularHours.filter(h => !existingMainTimes.has(h));
+    const existingMainTimes = new Set(existingMain.map((s) => s.startTime));
+    const missingMain = regularHours.filter((h) => !existingMainTimes.has(h));
 
-    const existingLateTimes = new Set(existingLate.map(s => s.startTime));
-    const missingLate = lateHours.filter(h => !existingLateTimes.has(h));
+    const existingLateTimes = new Set(existingLate.map((s) => s.startTime));
+    const missingLate = lateHours.filter((h) => !existingLateTimes.has(h));
 
     const mapMissingToCreate = (date: Date, time: string) => {
-      const fixed = fixedSlots.find(f => f.startTime === time);
+      const fixed = fixedSlots.find((f) => f.startTime === time);
       const endTime = this.calculateEndTime(time);
       return {
         date,
@@ -264,13 +292,13 @@ export class SlotsService {
 
     if (missingMain.length > 0) {
       await this.prisma.appointment.createMany({
-        data: missingMain.map(time => mapMissingToCreate(logicalDate, time)),
+        data: missingMain.map((time) => mapMissingToCreate(logicalDate, time)),
       });
     }
 
     if (missingLate.length > 0) {
       await this.prisma.appointment.createMany({
-        data: missingLate.map(time => mapMissingToCreate(nextDay, time)),
+        data: missingLate.map((time) => mapMissingToCreate(nextDay, time)),
       });
     }
   }

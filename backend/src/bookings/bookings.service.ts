@@ -21,25 +21,24 @@ export class BookingsService {
     clientName: string,
     clientPhone: string,
   ) {
-    // 1. Verify slot exists and is AVAILABLE
-    let slot = await this.prisma.appointment.findFirst({
-      where: { date: new Date(date), startTime },
+    // 1. Find the first AVAILABLE slot for this date/time (supports multi-court)
+    const candidate = await this.prisma.appointment.findFirst({
+      where: { date: new Date(date), startTime, status: 'AVAILABLE' },
+      select: { id: true },
     });
 
-    if (!slot) {
-      throw new NotFoundException('El turno no existe');
+    if (!candidate) {
+      throw new ConflictException(
+        'No hay canchas disponibles para este horario',
+      );
     }
 
-    if (slot.status !== 'AVAILABLE') {
-      throw new ConflictException('El turno ya no está disponible');
-    }
-
-    // 2. Mark as PENDING with 15 minutes expiration
+    // 2. Atomic update: only succeeds if the slot is still AVAILABLE (prevents TOCTOU race)
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 15);
 
-    slot = await this.prisma.appointment.update({
-      where: { id: slot.id },
+    const result = await this.prisma.appointment.updateMany({
+      where: { id: candidate.id, status: 'AVAILABLE' },
       data: {
         status: 'PENDING',
         clientName,
@@ -48,17 +47,35 @@ export class BookingsService {
       },
     });
 
-    // 3. Create MP Preference
+    if (result.count === 0) {
+      throw new ConflictException(
+        'El turno fue tomado por otro usuario. Intentá de nuevo.',
+      );
+    }
+
+    // 3. Fetch the updated slot to get its full data
+    const slot = await this.prisma.appointment.findUnique({
+      where: { id: candidate.id },
+    });
+
+    if (!slot) {
+      throw new ConflictException('Error interno al procesar la reserva');
+    }
+
+    // 4. Create MP Preference
     const preference = await this.paymentsService.createPreference(
       slot.id,
       date,
       startTime,
     );
 
-    // 4. Save Preference ID
+    // 5. Save Preference ID & depositPaid
     await this.prisma.appointment.update({
       where: { id: slot.id },
-      data: { preferenceId: preference.preferenceId },
+      data: {
+        preferenceId: preference.preferenceId,
+        depositPaid: preference.depositAmount,
+      },
     });
 
     return {
@@ -150,5 +167,39 @@ export class BookingsService {
       }
     }
     return { received: true };
+  }
+
+  async releaseHold(id: number) {
+    const slot = await this.prisma.appointment.findUnique({ where: { id } });
+    if (!slot) {
+      throw new NotFoundException('Turno no encontrado');
+    }
+    if (slot.status !== 'PENDING') {
+      throw new BadRequestException('El turno no está en estado PENDING');
+    }
+
+    return this.prisma.appointment.update({
+      where: { id },
+      data: {
+        status: 'AVAILABLE',
+        clientName: null,
+        clientPhone: null,
+        expiresAt: null,
+        preferenceId: null,
+        paymentId: null,
+        depositPaid: null,
+      },
+    });
+  }
+
+  async getPaymentHistory() {
+    return this.prisma.appointment.findMany({
+      where: {
+        paymentId: { not: null },
+        status: 'BOOKED',
+      },
+      orderBy: { date: 'desc' },
+      take: 100,
+    });
   }
 }

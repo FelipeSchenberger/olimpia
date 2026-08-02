@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
-import { SettingsService } from '../settings/settings.service';
+import { PricingService } from '../pricing/pricing.service';
 
 @Injectable()
 export class PaymentsService {
   private client: MercadoPagoConfig;
 
-  constructor(private readonly settingsService: SettingsService) {
+  constructor(private readonly pricingService: PricingService) {
     const accessToken = process.env.MP_ACCESS_TOKEN;
     if (!accessToken) {
       console.warn('MP_ACCESS_TOKEN is not defined in environment variables');
@@ -21,7 +21,8 @@ export class PaymentsService {
     date: string,
     startTime: string,
   ) {
-    const depositAmount = await this.settingsService.getDepositAmount();
+    const depositAmount =
+      await this.pricingService.getDepositForSlot(startTime);
 
     if (depositAmount <= 0) {
       throw new Error('El monto de la seña debe ser mayor a 0');
@@ -37,6 +38,7 @@ export class PaymentsService {
       return {
         preferenceId: 'mock-pref-' + appointmentId,
         initPoint: `http://localhost:4200/success?payment_id=mock-payment&external_reference=${appointmentId}`,
+        depositAmount,
       };
     }
 
@@ -73,6 +75,7 @@ export class PaymentsService {
     return {
       preferenceId: result.id,
       initPoint: result.init_point,
+      depositAmount,
     };
   }
 

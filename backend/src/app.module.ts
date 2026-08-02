@@ -8,6 +8,7 @@ import { SettingsModule } from './settings/settings.module';
 import { PaymentsModule } from './payments/payments.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CronModule } from './cron/cron.module';
+import { PricingModule } from './pricing/pricing.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -20,6 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PaymentsModule,
     BookingsModule,
     CronModule,
+    PricingModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
