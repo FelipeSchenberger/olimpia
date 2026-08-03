@@ -1,12 +1,10 @@
-import {
-  IsDateString,
-  IsNotEmpty,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export class CreateIntentDto {
-  @IsDateString({}, { message: 'La fecha debe tener formato válido (YYYY-MM-DD)' })
+  @IsDateString(
+    {},
+    { message: 'La fecha debe tener formato válido (YYYY-MM-DD)' },
+  )
   @IsNotEmpty({ message: 'La fecha es obligatoria' })
   date: string;
 
