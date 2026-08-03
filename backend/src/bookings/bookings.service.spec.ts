@@ -2,7 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookingsService } from './bookings.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
-import { ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 const mockPrisma = {
   appointment: {
@@ -44,7 +48,12 @@ describe('BookingsService', () => {
       mockPrisma.appointment.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.createIntent('2026-01-01', '18:00', 'Test Client', '1111111111'),
+        service.createIntent(
+          '2026-01-01',
+          '18:00',
+          'Test Client',
+          '1111111111',
+        ),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -53,7 +62,12 @@ describe('BookingsService', () => {
       mockPrisma.appointment.updateMany.mockResolvedValue({ count: 0 });
 
       await expect(
-        service.createIntent('2026-01-01', '18:00', 'Test Client', '1111111111'),
+        service.createIntent(
+          '2026-01-01',
+          '18:00',
+          'Test Client',
+          '1111111111',
+        ),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -63,7 +77,12 @@ describe('BookingsService', () => {
       mockPrisma.appointment.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.createIntent('2026-01-01', '18:00', 'Test Client', '1111111111'),
+        service.createIntent(
+          '2026-01-01',
+          '18:00',
+          'Test Client',
+          '1111111111',
+        ),
       ).rejects.toThrow(ConflictException);
     });
 
@@ -115,6 +134,7 @@ describe('BookingsService', () => {
 
       expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           where: expect.objectContaining({ status: { in: ['BOOKED'] } }),
         }),
       );
@@ -127,7 +147,10 @@ describe('BookingsService', () => {
 
       expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ status: { in: ['PENDING', 'BOOKED'] } }),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          where: expect.objectContaining({
+            status: { in: ['PENDING', 'BOOKED'] },
+          }),
         }),
       );
     });
@@ -139,6 +162,7 @@ describe('BookingsService', () => {
 
       expect(mockPrisma.appointment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           where: expect.objectContaining({
             date: { equals: new Date('2026-01-01') },
           }),
@@ -151,7 +175,9 @@ describe('BookingsService', () => {
     it('throws NotFoundException when slot does not exist', async () => {
       mockPrisma.appointment.findUnique.mockResolvedValue(null);
 
-      await expect(service.confirmBooking(999)).rejects.toThrow(NotFoundException);
+      await expect(service.confirmBooking(999)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('throws BadRequestException when slot is not PENDING', async () => {
@@ -160,7 +186,9 @@ describe('BookingsService', () => {
         status: 'BOOKED',
       });
 
-      await expect(service.confirmBooking(1)).rejects.toThrow(BadRequestException);
+      await expect(service.confirmBooking(1)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('updates slot to BOOKED when in PENDING state', async () => {
@@ -292,4 +320,3 @@ describe('BookingsService', () => {
     });
   });
 });
-

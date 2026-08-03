@@ -106,7 +106,11 @@ describe('[Fase 1] SettingsService', () => {
 
     it('returns stored promo prices as parsed JSON', async () => {
       const stored = [
-        { title: 'Lunes a Viernes', subtitle: 'Todo el día', price: '$ 50.000' },
+        {
+          title: 'Lunes a Viernes',
+          subtitle: 'Todo el día',
+          price: '$ 50.000',
+        },
       ];
       mockPrisma.setting.findUnique.mockResolvedValue({
         key: 'promo_prices',

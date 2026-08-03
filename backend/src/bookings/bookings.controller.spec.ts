@@ -18,9 +18,7 @@ describe('BookingsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BookingsController],
-      providers: [
-        { provide: BookingsService, useValue: mockBookingsService },
-      ],
+      providers: [{ provide: BookingsService, useValue: mockBookingsService }],
     })
       .overrideGuard(SupabaseAuthGuard)
       .useValue({ canActivate: () => true })
@@ -69,4 +67,3 @@ describe('BookingsController', () => {
     });
   });
 });
-

@@ -16,9 +16,7 @@ describe('SettingsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [SettingsController],
-      providers: [
-        { provide: SettingsService, useValue: mockSettingsService },
-      ],
+      providers: [{ provide: SettingsService, useValue: mockSettingsService }],
     })
       .overrideGuard(SupabaseAuthGuard)
       .useValue({ canActivate: () => true })
@@ -53,7 +51,9 @@ describe('SettingsController', () => {
       const result = await controller.updateDepositAmount({ amount: 2000 });
 
       expect(result).toEqual({ key: 'deposit_amount', value: '2000' });
-      expect(mockSettingsService.updateDepositAmount).toHaveBeenCalledWith(2000);
+      expect(mockSettingsService.updateDepositAmount).toHaveBeenCalledWith(
+        2000,
+      );
     });
   });
 
@@ -80,16 +80,30 @@ describe('SettingsController', () => {
 
       const body = {
         items: [
-          { title: 'Lunes a Viernes', subtitle: 'Hasta 17hs', price: '$ 42.000' },
-          { title: 'Sábados y Domingos', subtitle: 'Todo el día', price: '$ 40.000' },
-          { title: 'Cumpleaños', subtitle: '2 Hs de Cancha', price: '$ 95.000' },
+          {
+            title: 'Lunes a Viernes',
+            subtitle: 'Hasta 17hs',
+            price: '$ 42.000',
+          },
+          {
+            title: 'Sábados y Domingos',
+            subtitle: 'Todo el día',
+            price: '$ 40.000',
+          },
+          {
+            title: 'Cumpleaños',
+            subtitle: '2 Hs de Cancha',
+            price: '$ 95.000',
+          },
         ],
       };
 
       const result = await controller.updatePromoPrices(body);
 
       expect(result).toEqual({ success: true, count: 3 });
-      expect(mockSettingsService.updatePromoPrices).toHaveBeenCalledWith(body.items);
+      expect(mockSettingsService.updatePromoPrices).toHaveBeenCalledWith(
+        body.items,
+      );
     });
   });
 });

@@ -46,11 +46,13 @@ describe('PaymentsService', () => {
       mockPricingService.getDepositForSlot.mockResolvedValue(5000);
 
       // Result may come from MP or mock depending on env; what matters is pricing is consulted
-      const result = await service.createPreference(42, '2026-01-01', '18:00').catch(
-        () => null,
-      );
+      const result = await service
+        .createPreference(42, '2026-01-01', '18:00')
+        .catch(() => null);
 
-      expect(mockPricingService.getDepositForSlot).toHaveBeenCalledWith('18:00');
+      expect(mockPricingService.getDepositForSlot).toHaveBeenCalledWith(
+        '18:00',
+      );
       // depositAmount should be what pricing returned
       if (result) {
         expect(result.depositAmount).toBe(5000);
@@ -65,8 +67,9 @@ describe('PaymentsService', () => {
         // OK if MP call fails in test env – the pricing call is what we assert
       });
 
-      expect(mockPricingService.getDepositForSlot).toHaveBeenCalledWith('10:00');
+      expect(mockPricingService.getDepositForSlot).toHaveBeenCalledWith(
+        '10:00',
+      );
     });
   });
 });
-
