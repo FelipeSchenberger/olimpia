@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
 import { AuthService } from '../../services/auth.service';
 import { PricingService, SlotPricing } from '../../services/pricing.service';
+import { SettingsService, PromoPriceItem } from '../../services/settings.service';
 import {
   AdminBookingsService,
   Booking,
@@ -22,10 +23,15 @@ export class Admin implements OnInit {
   private authService = inject(AuthService);
   private pricingService = inject(PricingService);
   private adminBookingsService = inject(AdminBookingsService);
+  private settingsService = inject(SettingsService);
   private cdr = inject(ChangeDetectorRef);
 
+  readonly currentYear = new Date().getFullYear();
+
   // Navigation
-  activeTab: 'slots' | 'bookings' | 'payments' | 'prices' = 'slots';
+  activeTab: 'slots' | 'bookings' | 'payments' | 'prices' | 'promos' = 'slots';
+
+
 
   // Slots state
   date: string = new Date().toISOString().split('T')[0];
@@ -46,6 +52,14 @@ export class Admin implements OnInit {
   isSavingPrices: boolean = false;
   pricesSaveSuccess: boolean = false;
   pricesSaveError: string = '';
+
+  // Promo prices state
+  promoPrices: PromoPriceItem[] = [];
+  isLoadingPromos: boolean = false;
+  isSavingPromos: boolean = false;
+  promosSaveSuccess: boolean = false;
+  promosSaveError: string = '';
+
 
   // Payments history
   payments: Booking[] = [];
@@ -103,7 +117,7 @@ export class Admin implements OnInit {
     this.cdr.detectChanges();
   }
 
-  setTab(tab: 'slots' | 'bookings' | 'payments' | 'prices') {
+  setTab(tab: 'slots' | 'bookings' | 'payments' | 'prices' | 'promos') {
     if (this.activeTab === tab) return;
     this.activeTab = tab;
     if (tab === 'bookings' && this.bookings.length === 0) {
@@ -112,9 +126,12 @@ export class Admin implements OnInit {
       this.loadPaymentHistory();
     } else if (tab === 'prices' && this.prices.length === 0) {
       this.loadPrices();
+    } else if (tab === 'promos' && this.promoPrices.length === 0) {
+      this.loadPromoPrices();
     }
     this.cdr.detectChanges();
   }
+
 
   setCourt(id: number) {
     if (this.courtId === id) return;
@@ -166,7 +183,13 @@ export class Admin implements OnInit {
     this.pricesSaveSuccess = false;
     this.isSavingPrices = true;
     
-    this.pricingService.updatePrices(this.prices).subscribe({
+    // Sanitize payload to send only startTime and numeric price
+    const payload = this.prices.map((p) => ({
+      startTime: p.startTime,
+      price: Number(p.price) || 0,
+    }));
+
+    this.pricingService.updatePrices(payload).subscribe({
       next: () => {
         this.isSavingPrices = false;
         this.pricesSaveSuccess = true;
@@ -186,7 +209,65 @@ export class Admin implements OnInit {
     });
   }
 
+  loadPromoPrices() {
+    this.isLoadingPromos = true;
+    this.promosSaveError = '';
+    this.settingsService.getPromoPrices().subscribe({
+      next: (data) => {
+        this.promoPrices = data || [];
+        this.isLoadingPromos = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading promo prices', err);
+        this.isLoadingPromos = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  savePromoPrices() {
+    this.promosSaveError = '';
+    this.promosSaveSuccess = false;
+    this.isSavingPromos = true;
+
+    this.settingsService.updatePromoPrices(this.promoPrices).subscribe({
+      next: () => {
+        this.isSavingPromos = false;
+        this.promosSaveSuccess = true;
+        this.cdr.detectChanges();
+
+        setTimeout(() => {
+          this.promosSaveSuccess = false;
+          this.cdr.detectChanges();
+        }, 3000);
+      },
+      error: (err) => {
+        console.error('Error saving promo prices', err);
+        this.promosSaveError =
+          'Ocurrió un error al guardar las tarifas promocionales';
+        this.isSavingPromos = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  addPromoPrice() {
+    this.promoPrices.push({
+      title: 'Nueva Categoría',
+      subtitle: 'Descripción',
+      price: '$ 0',
+    });
+    this.cdr.detectChanges();
+  }
+
+  removePromoPrice(index: number) {
+    this.promoPrices.splice(index, 1);
+    this.cdr.detectChanges();
+  }
+
   loadPaymentHistory() {
+
     this.isLoadingPayments = true;
     this.adminBookingsService.getPaymentHistory().subscribe({
       next: (data) => {

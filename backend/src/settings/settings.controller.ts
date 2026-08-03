@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
+import { UpdatePromoPricesDto } from './dto/update-promo-prices.dto';
 
 @Controller('settings')
 export class SettingsController {
@@ -15,5 +16,16 @@ export class SettingsController {
   @Put('deposit-amount')
   updateDepositAmount(@Body() body: { amount: number }) {
     return this.settingsService.updateDepositAmount(body.amount);
+  }
+
+  @Get('promo-prices')
+  getPromoPrices() {
+    return this.settingsService.getPromoPrices();
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Put('promo-prices')
+  updatePromoPrices(@Body() body: UpdatePromoPricesDto) {
+    return this.settingsService.updatePromoPrices(body.items);
   }
 }

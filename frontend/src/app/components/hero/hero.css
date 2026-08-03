@@ -10,7 +10,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=2070&auto=format&fit=crop'); 
+  background-image: url('/fondo.webp'); 
   background-size: cover;
   background-position: center;
   background-attachment: fixed; /* Parallax effect */
@@ -36,15 +36,15 @@ html {
   flex-direction: column;
   align-items: center;
   padding: 0 1rem;
-  animation: fadeIn Up 1s ease-out;
+  animation: fadeInUp 1s ease-out;
 }
 
 /* Hero Branding Container */
 .hero-branding {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Reducido de 2rem a 1rem */
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Logo de la pelota (cuadrado verde) */
@@ -65,14 +65,14 @@ html {
 .hero-text-logo {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrado */
+  align-items: center;
 }
 
 .hero-title-text {
   font-family: 'Anton', sans-serif;
   font-size: 7rem;
   line-height: 0.9;
-  letter-spacing: 0.05em; /* Sin espaciado extra */
+  letter-spacing: 0.05em;
   color: #fff;
   margin: 0;
   text-transform: uppercase;
@@ -82,7 +82,7 @@ html {
 .hero-subtitle-text {
   font-family: 'Anton', sans-serif;
   font-size: 2.5rem;
-  letter-spacing: 0.2em; /* Más espaciado para FUTBOL 5 */
+  letter-spacing: 0.2em;
   color: #fff;
   margin: 0;
   text-transform: uppercase;
@@ -90,43 +90,52 @@ html {
   opacity: 0.9;
 }
 
-.hero-subtitle {
-  font-size: 1.8rem;
-  color: #ddd;
-  margin-bottom: 3rem;
-  font-weight: 300;
-  max-width: 600px;
-}
-
-.text-gradient {
-  background: linear-gradient(45deg, var(--primary-color), #fff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.cta-button {
-  background-color: var(--primary-color);
-  color: #000;
-  border: none;
-  padding: 1.2rem 3.5rem;
-  font-size: 1.2rem;
-  font-weight: 700;
+.anniversary-badge {
+  display: inline-block;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: #fff;
+  margin-bottom: 2.5rem;
+  padding: 0.75rem 2.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  border-radius: 4px; /* Sportier, less rounded */
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 255, 127, 0.4);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
 }
 
-.cta-button:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0, 255, 127, 0.6);
-  background-color: #fff;
+.gold-text {
+  color: #ffb703;
+  font-weight: 700;
 }
+
+.hero-nav-buttons {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  padding: 0.8rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: var(--primary-color);
+  color: #000;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(57, 255, 20, 0.4);
+}
+
 
 /* Animations */
 @keyframes fadeInUp {

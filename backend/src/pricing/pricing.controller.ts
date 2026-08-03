@@ -14,7 +14,8 @@ export class PricingController {
 
   @UseGuards(SupabaseAuthGuard)
   @Put()
-  updatePricesBulk(@Body() body: UpdatePricesBulkDto) {
-    return this.pricingService.updatePricesBulk(body.prices);
+  async updatePricesBulk(@Body() body: UpdatePricesBulkDto) {
+    await this.pricingService.updatePricesBulk(body.prices);
+    return { success: true, count: body.prices.length };
   }
 }

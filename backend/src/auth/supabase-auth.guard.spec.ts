@@ -25,54 +25,54 @@ describe('[Fase 1] SupabaseAuthGuard', () => {
     delete process.env.SUPABASE_JWT_SECRET;
   });
 
-  it('allows a valid Bearer token', () => {
+  it('allows a valid Bearer token', async () => {
     const token = jwt.sign(
       { sub: 'user-123', role: 'authenticated' },
       TEST_SECRET,
       { algorithm: 'HS256' },
     );
-    const result = guard.canActivate(makeContext(`Bearer ${token}`));
+    const result = await guard.canActivate(makeContext(`Bearer ${token}`));
     expect(result).toBe(true);
   });
 
-  it('rejects when Authorization header is missing', () => {
-    expect(() => guard.canActivate(makeContext())).toThrow(
+  it('rejects when Authorization header is missing', async () => {
+    await expect(guard.canActivate(makeContext())).rejects.toThrow(
       UnauthorizedException,
     );
   });
 
-  it('rejects when scheme is not Bearer', () => {
+  it('rejects when scheme is not Bearer', async () => {
     const token = jwt.sign({ sub: 'user-123' }, TEST_SECRET);
-    expect(() => guard.canActivate(makeContext(`Basic ${token}`))).toThrow(
-      UnauthorizedException,
-    );
+    await expect(
+      guard.canActivate(makeContext(`Basic ${token}`)),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('rejects a token signed with a wrong secret', () => {
+  it('rejects a token signed with a wrong secret', async () => {
     const token = jwt.sign({ sub: 'user-123' }, 'wrong-secret');
-    expect(() => guard.canActivate(makeContext(`Bearer ${token}`))).toThrow(
-      UnauthorizedException,
-    );
+    await expect(
+      guard.canActivate(makeContext(`Bearer ${token}`)),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('rejects an expired token', () => {
+  it('rejects an expired token', async () => {
     const token = jwt.sign({ sub: 'user-123' }, TEST_SECRET, { expiresIn: -1 });
-    expect(() => guard.canActivate(makeContext(`Bearer ${token}`))).toThrow(
-      UnauthorizedException,
-    );
+    await expect(
+      guard.canActivate(makeContext(`Bearer ${token}`)),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('rejects a malformed token string', () => {
-    expect(() => guard.canActivate(makeContext('Bearer not.a.jwt'))).toThrow(
-      UnauthorizedException,
-    );
+  it('rejects a malformed token string', async () => {
+    await expect(
+      guard.canActivate(makeContext('Bearer not.a.jwt')),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
-  it('throws when SUPABASE_JWT_SECRET env var is not set', () => {
+  it('throws when SUPABASE_JWT_SECRET env var is not set', async () => {
     delete process.env.SUPABASE_JWT_SECRET;
     const token = jwt.sign({ sub: 'user-123' }, TEST_SECRET);
-    expect(() => guard.canActivate(makeContext(`Bearer ${token}`))).toThrow(
-      UnauthorizedException,
-    );
+    await expect(
+      guard.canActivate(makeContext(`Bearer ${token}`)),
+    ).rejects.toThrow(UnauthorizedException);
   });
 });
