@@ -97,10 +97,19 @@ export class SettingsService {
     const desde18Item = items.find(i => i.subtitle.toLowerCase().includes('18hs'));
 
     if (hasta17Item && desde18Item) {
-      const priceHasta17 = Number(hasta17Item.price.replace(/[^0-9]/g, ''));
-      const priceDesde18 = Number(desde18Item.price.replace(/[^0-9]/g, ''));
+      const str17 = hasta17Item.price.replace(/[^0-9]/g, '');
+      const str18 = desde18Item.price.replace(/[^0-9]/g, '');
+      const priceHasta17 = Number(str17);
+      const priceDesde18 = Number(str18);
 
-      if (!isNaN(priceHasta17) && !isNaN(priceDesde18)) {
+      if (
+        str17.length > 0 &&
+        str18.length > 0 &&
+        !isNaN(priceHasta17) &&
+        !isNaN(priceDesde18) &&
+        priceHasta17 > 0 &&
+        priceDesde18 > 0
+      ) {
         const bulkPrices: { startTime: string; price: number }[] = [];
         const hours = [
           '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',

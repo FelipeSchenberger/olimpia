@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+import { MailService } from '../mail/mail.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly paymentsService: PaymentsService,
+    private readonly mailService: MailService,
   ) {}
 
   async createIntent(
@@ -136,11 +138,19 @@ export class BookingsService {
       if (paymentId === 'mock-payment') {
         const appointmentId = Number(data.data.external_reference);
         if (!isNaN(appointmentId)) {
-          await this.prisma.appointment.update({
+          const updatedSlot = await this.prisma.appointment.update({
             where: { id: appointmentId },
             data: { status: 'BOOKED', paymentId: String(paymentId) },
           });
           console.log(`Mock: Appointment ${appointmentId} confirmed.`);
+          
+          this.mailService.sendBookingNotification(
+            updatedSlot.clientName || 'Desconocido',
+            updatedSlot.date,
+            updatedSlot.startTime,
+            updatedSlot.depositPaid || 0,
+            String(paymentId),
+          );
         }
         return { received: true };
       }
@@ -152,7 +162,7 @@ export class BookingsService {
           const appointmentId = Number(paymentInfo.external_reference);
 
           if (!isNaN(appointmentId)) {
-            await this.prisma.appointment.update({
+            const updatedSlot = await this.prisma.appointment.update({
               where: { id: appointmentId },
               data: {
                 status: 'BOOKED',
@@ -160,6 +170,15 @@ export class BookingsService {
               },
             });
             console.log(`Appointment ${appointmentId} confirmed via MP.`);
+
+            // Enviar notificación por correo de forma asíncrona (no bloquea el Webhook)
+            this.mailService.sendBookingNotification(
+              updatedSlot.clientName || 'Desconocido',
+              updatedSlot.date,
+              updatedSlot.startTime,
+              updatedSlot.depositPaid || 0,
+              String(paymentId),
+            );
           }
         }
       } catch (error) {

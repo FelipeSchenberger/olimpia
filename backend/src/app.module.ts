@@ -9,6 +9,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { BookingsModule } from './bookings/bookings.module';
 import { CronModule } from './cron/cron.module';
 import { PricingModule } from './pricing/pricing.module';
+import { MailModule } from './mail/mail.module';
 
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -22,6 +23,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     BookingsModule,
     CronModule,
     PricingModule,
+    MailModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
