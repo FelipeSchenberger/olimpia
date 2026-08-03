@@ -1,12 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SettingsService } from './settings.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PricingService } from '../pricing/pricing.service';
 
 const mockPrisma = {
   setting: {
     findUnique: jest.fn(),
     upsert: jest.fn(),
   },
+};
+
+const mockPricingService = {
+  updatePricesBulk: jest.fn().mockResolvedValue(undefined),
 };
 
 describe('[Fase 1] SettingsService', () => {
@@ -17,6 +22,7 @@ describe('[Fase 1] SettingsService', () => {
       providers: [
         SettingsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: PricingService, useValue: mockPricingService },
       ],
     }).compile();
 

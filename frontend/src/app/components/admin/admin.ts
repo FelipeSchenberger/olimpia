@@ -414,4 +414,38 @@ export class Admin implements OnInit {
       this.loadSlots();
     });
   }
+
+  deleteFixedForever() {
+    if (!this.selectedSlot) return;
+
+    const slot = this.selectedSlot;
+    if (
+      !confirm(
+        `¿Seguro que querés ELIMINAR DEFINITIVAMENTE el turno fijo de ${slot.clientName || 'este cliente'} (${slot.startTime})? Se liberará este horario para todas las semanas futuras.`,
+      )
+    )
+      return;
+
+    const isoDate = new Date(slot.date).toISOString();
+    const yyyymmdd = isoDate.split('T')[0];
+    const dateObj = new Date(yyyymmdd + 'T12:00:00');
+    let dayOfWeek = dateObj.getDay();
+    if (dayOfWeek === 0) dayOfWeek = 7;
+
+    this.isLoading = true;
+    this.slotsService
+      .deleteFixedSlot(this.courtId, dayOfWeek, slot.startTime)
+      .subscribe({
+        next: () => {
+          this.closeModal();
+          this.loadSlots();
+        },
+        error: (err) => {
+          console.error('Error deleting fixed slot', err);
+          this.modalError = 'Error al eliminar el turno fijo';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
 }

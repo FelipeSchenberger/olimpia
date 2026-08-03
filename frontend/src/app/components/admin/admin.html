@@ -316,9 +316,9 @@
       <div class="modal">
           <h3>Gestión de Turno: {{ selectedSlot.startTime }}</h3>
           <p class="status-text">Estado actual: {{ selectedSlot.status }} - {{ selectedSlot.type }}</p>
+          <p class="status-text">Cliente:</p>
 
           <div class="form-group">
-              <label>Cliente:</label>
               <input type="text" [(ngModel)]="clientNameInput" placeholder="Nombre completo">
           </div>
 
@@ -329,12 +329,16 @@
                   <button class="btn-fixed" (click)="saveSlot('FIXED')">📌 Hacer Fijo</button>
               </div>
 
-              <button class="btn-free" (click)="saveSlot('AVAILABLE')">♻️ Liberar Turno</button>
+              <div class="release-section">
+                  <p class="release-title">¿Qué deseas liberar?</p>
+                  <button class="btn-release-today" (click)="saveSlot('AVAILABLE')">Solo por Hoy</button>
+                  <button class="btn-release-forever" (click)="deleteFixedForever()">Para Siempre (Eliminar Fijo)</button>
+              </div>
+
+              <button class="btn-cancel" (click)="closeModal()">Cancelar</button>
           </div>
 
           <p class="error" *ngIf="modalError">{{ modalError }}</p>
-
-          <button class="btn-close" (click)="closeModal()">Cancelar</button>
       </div>
   </div>
 </div>
