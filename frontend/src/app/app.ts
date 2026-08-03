@@ -1,12 +1,15 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  readonly currentYear = new Date().getFullYear();
+}
+

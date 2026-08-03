@@ -12,10 +12,14 @@ export class Hero {
   private platformId = inject(PLATFORM_ID);
 
   scrollToSlots() {
+    this.scrollToSection('turnos');
+  }
+
+  scrollToSection(sectionId: string = 'turnos') {
     // Guard: this function uses browser-only APIs — skip during SSR
     if (!isPlatformBrowser(this.platformId)) return;
 
-    const target = document.getElementById('turnos');
+    const target = document.getElementById(sectionId);
     if (!target) return;
 
     const targetPosition = target.getBoundingClientRect().top + window.scrollY;
@@ -42,4 +46,5 @@ export class Hero {
     requestAnimationFrame(animation);
   }
 }
+
 

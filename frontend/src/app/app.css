@@ -1,0 +1,99 @@
+/* Main Footer Styles */
+.main-footer {
+  width: 100%;
+  padding: 3.5rem 1.5rem 2.5rem;
+  background-color: var(--bg-dark, #0a0a0a);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* DevRow Brand Link */
+.devrow-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.devrow-link:hover {
+  transform: scale(1.05);
+}
+
+.devrow-brand {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 2.25rem;
+  letter-spacing: -0.03em;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.devrow-dev {
+  color: #ffffff;
+}
+
+.devrow-row {
+  color: #FFC107;
+}
+
+.devrow-tagline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  margin-top: 0.35rem;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* Footer Bottom Section */
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.copyright {
+  color: #737373;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Admin Access Button (Sleek & Subtle) */
+.admin-access-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #a3a3a3;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.admin-access-btn:hover {
+  background: rgba(57, 255, 20, 0.08);
+  border-color: rgba(57, 255, 20, 0.4);
+  color: #39ff14;
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.15);
+}

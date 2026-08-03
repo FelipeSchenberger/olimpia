@@ -4,6 +4,12 @@ import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
+export interface PromoPriceItem {
+  title: string;
+  subtitle: string;
+  price: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,4 +34,17 @@ export class SettingsService {
       { headers: this.authHeaders }
     );
   }
+
+  getPromoPrices(): Observable<PromoPriceItem[]> {
+    return this.http.get<PromoPriceItem[]>(`${this.apiUrl}/promo-prices`);
+  }
+
+  updatePromoPrices(items: PromoPriceItem[]): Observable<{ success: boolean; count: number }> {
+    return this.http.put<{ success: boolean; count: number }>(
+      `${this.apiUrl}/promo-prices`,
+      { items },
+      { headers: this.authHeaders }
+    );
+  }
 }
+

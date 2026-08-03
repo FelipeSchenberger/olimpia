@@ -2,14 +2,20 @@
   <div class="hero-overlay"></div>
   <div class="container hero-content">
     <div class="hero-branding">
-      <!-- Pon aquí tu imagen de la pelota (cuadrado verde). Llámala: pelota-logo.png -->
       <img src="/pelota-logo.png" alt="Olimpia" class="hero-ball-logo">
       <div class="hero-text-logo">
         <h1 class="hero-title-text">OLIMPIA</h1>
         <p class="hero-subtitle-text">FUTBOL 5</p>
       </div>
     </div>
-    <p class="hero-subtitle">Tu cancha, <span class="text-gradient">tu juego</span>.</p>
-    <button class="cta-button" (click)="scrollToSlots()">Ver Turnos Disponibles</button>
+    <div class="anniversary-badge">
+      <span class="gold-text">35 AÑOS</span> JUNTO A VOS
+    </div>
+    <div class="hero-nav-buttons">
+      <button class="nav-btn" (click)="scrollToSection('turnos')">TURNOS</button>
+      <button class="nav-btn" (click)="scrollToSection('tarifas')">TARIFAS</button>
+      <button class="nav-btn" (click)="scrollToSection('info')">INFO</button>
+    </div>
   </div>
 </header>
+

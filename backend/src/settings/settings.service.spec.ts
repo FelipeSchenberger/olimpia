@@ -82,4 +82,85 @@ describe('[Fase 1] SettingsService', () => {
       });
     });
   });
+
+  describe('getPromoPrices', () => {
+    it('returns default promo prices when no setting exists', async () => {
+      mockPrisma.setting.findUnique.mockResolvedValue(null);
+
+      const result = await service.getPromoPrices();
+
+      expect(result).toHaveLength(5);
+      expect(result[0].title).toBe('Lunes a Viernes');
+    });
+
+    it('returns default promo prices when setting value is empty', async () => {
+      mockPrisma.setting.findUnique.mockResolvedValue({
+        key: 'promo_prices',
+        value: '',
+      });
+
+      const result = await service.getPromoPrices();
+
+      expect(result).toHaveLength(5);
+    });
+
+    it('returns stored promo prices as parsed JSON', async () => {
+      const stored = [
+        { title: 'Lunes a Viernes', subtitle: 'Todo el día', price: '$ 50.000' },
+      ];
+      mockPrisma.setting.findUnique.mockResolvedValue({
+        key: 'promo_prices',
+        value: JSON.stringify(stored),
+      });
+
+      const result = await service.getPromoPrices();
+
+      expect(result).toEqual(stored);
+    });
+
+    it('returns defaults when stored JSON is invalid', async () => {
+      mockPrisma.setting.findUnique.mockResolvedValue({
+        key: 'promo_prices',
+        value: 'not-valid-json{{{',
+      });
+
+      const result = await service.getPromoPrices();
+
+      expect(result).toHaveLength(5);
+    });
+  });
+
+  describe('updatePromoPrices', () => {
+    it('upserts promo prices as JSON and returns count', async () => {
+      mockPrisma.setting.upsert.mockResolvedValue({
+        key: 'promo_prices',
+        value: '[]',
+      });
+
+      const items = [
+        { title: 'Lunes a Viernes', subtitle: 'Hasta 17hs', price: '$ 42.000' },
+        { title: 'Cumpleaños', subtitle: '2 Hs de Cancha', price: '$ 95.000' },
+      ];
+
+      const result = await service.updatePromoPrices(items);
+
+      expect(result).toEqual({ success: true, count: 2 });
+      expect(mockPrisma.setting.upsert).toHaveBeenCalledWith({
+        where: { key: 'promo_prices' },
+        create: { key: 'promo_prices', value: JSON.stringify(items) },
+        update: { value: JSON.stringify(items) },
+      });
+    });
+
+    it('returns count 0 when updating with empty array', async () => {
+      mockPrisma.setting.upsert.mockResolvedValue({
+        key: 'promo_prices',
+        value: '[]',
+      });
+
+      const result = await service.updatePromoPrices([]);
+
+      expect(result).toEqual({ success: true, count: 0 });
+    });
+  });
 });
