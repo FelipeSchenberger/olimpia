@@ -46,7 +46,11 @@
           <button class="tab-btn" [class.active]="activeTab === 'prices'" (click)="setTab('prices')">
               ⚙️ Precios
           </button>
+          <button class="tab-btn" [class.active]="activeTab === 'promos'" (click)="setTab('promos')">
+              🏷️ Tarifas y Promos
+          </button>
       </div>
+
 
       <!-- ==================== TAB: TURNOS ==================== -->
       <div *ngIf="activeTab === 'slots'">
@@ -245,16 +249,69 @@
                   <button class="btn-save" (click)="savePrices()" [disabled]="isSavingPrices">
                       {{ isSavingPrices ? 'Guardando...' : 'Guardar Precios' }}
                   </button>
-              </div>
-              <div class="toast toast-success" *ngIf="pricesSaveSuccess">
-                  ✅ Precios guardados correctamente
+                  <span class="save-success-badge" *ngIf="pricesSaveSuccess">
+                      ✅ Precios guardados correctamente
+                  </span>
               </div>
               <p class="error" *ngIf="pricesSaveError">{{ pricesSaveError }}</p>
           </div>
       </div>
+
+      <!-- ==================== TAB: TARIFAS Y PROMOS ==================== -->
+      <div *ngIf="activeTab === 'promos'" class="prices-section">
+          <h3>Tarifas y Precios Promocionales</h3>
+          <p class="help-text">
+            Estos son los bloques promocionales y categorías generales (Lunes a Viernes, Fines de semana, Cumpleaños) que se muestran en el cartel <strong>TARIFAS {{ currentYear }}</strong> en la portada de la web.
+
+          </p>
+          
+          <div *ngIf="isLoadingPromos" class="loading-overlay">
+              <div class="spinner"></div> Cargando tarifas...
+          </div>
+
+          <div *ngIf="!isLoadingPromos" class="promos-container">
+              <div class="promo-item-card" *ngFor="let item of promoPrices; let i = index">
+                  <div class="promo-fields">
+                      <div class="promo-field">
+                          <label>Título (ej. Lunes a Viernes):</label>
+                          <input type="text" [(ngModel)]="item.title" class="input-dark">
+                      </div>
+                      <div class="promo-field">
+                          <label>Subtítulo / Horario (ej. Hasta 17hs):</label>
+                          <input type="text" [(ngModel)]="item.subtitle" class="input-dark">
+                      </div>
+                      <div class="promo-field">
+                          <label>Monto visible (ej. $ 42.000):</label>
+                          <input type="text" [(ngModel)]="item.price" class="input-dark">
+                      </div>
+                  </div>
+                  <button class="btn-remove-promo" (click)="removePromoPrice(i)" title="Eliminar categoría">
+                      🗑️
+                  </button>
+              </div>
+
+              <div class="promos-actions-row">
+                  <button class="btn-add-promo" (click)="addPromoPrice()">
+                      + Agregar Categoría
+                  </button>
+
+                  <div class="prices-actions">
+                      <button class="btn-save" (click)="savePromoPrices()" [disabled]="isSavingPromos">
+                          {{ isSavingPromos ? 'Guardando...' : 'Guardar Tarifas Promocionales' }}
+                      </button>
+                      <span class="save-success-badge" *ngIf="promosSaveSuccess">
+                          ✅ Tarifas guardadas correctamente
+                      </span>
+                  </div>
+              </div>
+              <p class="error" *ngIf="promosSaveError">{{ promosSaveError }}</p>
+          </div>
+      </div>
   </div>
 
+
   <!-- MODAL -->
+
   <div class="modal-overlay" *ngIf="selectedSlot">
       <div class="modal">
           <h3>Gestión de Turno: {{ selectedSlot.startTime }}</h3>

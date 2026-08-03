@@ -1,0 +1,15 @@
+<section id="tarifas" class="prices-section">
+  <div class="container">
+    <h2 class="section-title">TARIFAS <span class="text-gradient">{{ currentYear }}</span></h2>
+
+    <div class="prices-card">
+      <div class="price-row" *ngFor="let item of displayPrices()">
+        <div class="price-info">
+          <span class="price-title">{{ item.title }}</span>
+          <span class="price-subtitle">{{ item.subtitle }}</span>
+        </div>
+        <div class="price-value">{{ item.price }}</div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,84 @@
+.prices-section {
+  padding: 5rem 1rem;
+  background-color: #0a0a0a;
+  color: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.text-gradient {
+  color: #39ff14;
+}
+
+.prices-card {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 0.5rem 2.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.price-row:last-child {
+  border-bottom: none;
+}
+
+.price-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.price-subtitle {
+  font-size: 0.9rem;
+  color: #a3a3a3;
+  margin-top: 0.2rem;
+}
+
+.price-value {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.65rem;
+  color: #39ff14;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+  .section-title {
+    font-size: 2.2rem;
+  }
+  .prices-card {
+    padding: 0.5rem 1.5rem;
+  }
+  .price-title {
+    font-size: 1rem;
+  }
+  .price-value {
+    font-size: 1.35rem;
+  }
+}
