@@ -11,6 +11,10 @@ Olimpia Fútbol 5 es un complejo deportivo que cuenta con canchas de césped sin
 - Reservas fijas semanales, turnos normales y reservas para cumpleaños o eventos.
 - Parrilla y quincho disponibles para terceros y eventos.
 
+## Precios y Disponibilidad en Tiempo Real
+- **Valores y Promociones:** Los precios de alquiler por turno, señas y promociones son dinámicos. Para consultar los valores vigentes y actualizados, ingresar directamente a nuestra plataforma web.
+- **Grilla de Turnos:** La disponibilidad de canchas y horarios libres se actualiza en tiempo real en [Olimpia Fútbol 5](https://olimpiafutbol5.com.ar/).
+
 ## Ubicación y Contacto
 - **Localidad:** Concepción del Uruguay, Entre Ríos, Argentina
 - **Coordenadas:** -32.4857, -58.2326
