@@ -11,12 +11,7 @@ import { isPlatformBrowser } from '@angular/common';
 export class Hero {
   private platformId = inject(PLATFORM_ID);
 
-  scrollToSlots() {
-    this.scrollToSection('turnos');
-  }
-
-  scrollToSection(sectionId: string = 'turnos') {
-    // Guard: this function uses browser-only APIs — skip during SSR
+  scrollToSection(sectionId: string) {
     if (!isPlatformBrowser(this.platformId)) return;
 
     const target = document.getElementById(sectionId);
@@ -25,7 +20,7 @@ export class Hero {
     const targetPosition = target.getBoundingClientRect().top + window.scrollY;
     const startPosition = window.scrollY;
     const distance = targetPosition - startPosition;
-    const duration = 800; // ms
+    const duration = 800;
     let start: number | null = null;
 
     function animation(currentTime: number) {
@@ -36,7 +31,6 @@ export class Hero {
       if (timeElapsed < duration) requestAnimationFrame(animation);
     }
 
-    // Easing function: Ease Out Cubic
     function ease(t: number, b: number, c: number, d: number) {
       t /= d;
       t--;
@@ -46,5 +40,3 @@ export class Hero {
     requestAnimationFrame(animation);
   }
 }
-
-

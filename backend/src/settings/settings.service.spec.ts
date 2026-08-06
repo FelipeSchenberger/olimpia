@@ -1,12 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SettingsService } from './settings.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { PricingService } from '../pricing/pricing.service';
 
 const mockPrisma = {
   setting: {
     findUnique: jest.fn(),
     upsert: jest.fn(),
   },
+};
+
+const mockPricingService = {
+  updatePricesBulk: jest.fn().mockResolvedValue(undefined),
 };
 
 describe('[Fase 1] SettingsService', () => {
@@ -17,6 +22,7 @@ describe('[Fase 1] SettingsService', () => {
       providers: [
         SettingsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: PricingService, useValue: mockPricingService },
       ],
     }).compile();
 
@@ -165,6 +171,43 @@ describe('[Fase 1] SettingsService', () => {
       const result = await service.updatePromoPrices([]);
 
       expect(result).toEqual({ success: true, count: 0 });
+      expect(mockPricingService.updatePricesBulk).not.toHaveBeenCalled();
+    });
+
+    it('calls PricingService.updatePricesBulk when 17hs and 18hs prices are valid', async () => {
+      mockPrisma.setting.upsert.mockResolvedValue({
+        key: 'promo_prices',
+        value: '[]',
+      });
+
+      const items = [
+        { title: 'Lunes a Viernes', subtitle: 'Hasta 17hs', price: '$ 42.000' },
+        { title: 'Lunes a Viernes', subtitle: 'Desde 18hs', price: '$ 45.000' },
+      ];
+
+      await service.updatePromoPrices(items);
+
+      expect(mockPricingService.updatePricesBulk).toHaveBeenCalledTimes(1);
+      const args = mockPricingService.updatePricesBulk.mock.calls[0][0];
+      expect(args.length).toBe(17); // 09:00 to 01:00
+      expect(args.find((a: any) => a.startTime === '09:00').price).toBe(42000);
+      expect(args.find((a: any) => a.startTime === '18:00').price).toBe(45000);
+    });
+
+    it('does NOT call PricingService.updatePricesBulk if prices are invalid or empty', async () => {
+      mockPrisma.setting.upsert.mockResolvedValue({
+        key: 'promo_prices',
+        value: '[]',
+      });
+
+      const items = [
+        { title: 'Lunes a Viernes', subtitle: 'Hasta 17hs', price: 'Consultar' },
+        { title: 'Lunes a Viernes', subtitle: 'Desde 18hs', price: '' },
+      ];
+
+      await service.updatePromoPrices(items);
+
+      expect(mockPricingService.updatePricesBulk).not.toHaveBeenCalled();
     });
   });
 });

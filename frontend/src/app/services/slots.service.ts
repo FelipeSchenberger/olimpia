@@ -61,4 +61,11 @@ export class SlotsService {
   createFixedSlot(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/fixed`, data, { headers: this.authHeaders });
   }
+
+  deleteFixedSlot(courtId: number, dayOfWeek: number, startTime: string): Observable<any> {
+    return this.http.delete(
+      `${this.apiUrl}/fixed?courtId=${courtId}&dayOfWeek=${dayOfWeek}&startTime=${encodeURIComponent(startTime)}`,
+      { headers: this.authHeaders },
+    );
+  }
 }

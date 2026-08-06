@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { PricingService } from '../pricing/pricing.service';
 
 const DEPOSIT_AMOUNT_KEY = 'deposit_amount';
 const DEPOSIT_AMOUNT_DEFAULT = '0';
@@ -34,7 +35,10 @@ const DEFAULT_PROMO_PRICES = [
 
 @Injectable()
 export class SettingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pricingService: PricingService,
+  ) {}
 
   async getDepositAmount(): Promise<number> {
     const setting = await this.prisma.setting.findUnique({
@@ -87,6 +91,47 @@ export class SettingsService {
         value: JSON.stringify(items),
       },
     });
+
+    // Automatically sync these baseline prices to SlotPricing
+    const hasta17Item = items.find(i => i.subtitle.toLowerCase().includes('17hs'));
+    const desde18Item = items.find(i => i.subtitle.toLowerCase().includes('18hs'));
+
+    if (hasta17Item && desde18Item) {
+      const str17 = hasta17Item.price.replace(/[^0-9]/g, '');
+      const str18 = desde18Item.price.replace(/[^0-9]/g, '');
+      const priceHasta17 = Number(str17);
+      const priceDesde18 = Number(str18);
+
+      if (
+        str17.length > 0 &&
+        str18.length > 0 &&
+        !isNaN(priceHasta17) &&
+        !isNaN(priceDesde18) &&
+        priceHasta17 > 0 &&
+        priceDesde18 > 0
+      ) {
+        const bulkPrices: { startTime: string; price: number }[] = [];
+        const hours = [
+          '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00',
+          '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00'
+        ];
+
+        for (const h of hours) {
+          const hourNum = parseInt(h.split(':')[0], 10);
+          let price = priceDesde18;
+
+          // If hour is between 09 and 17, use the 'Hasta 17hs' price
+          if (hourNum >= 9 && hourNum <= 17) {
+            price = priceHasta17;
+          }
+
+          bulkPrices.push({ startTime: h, price });
+        }
+
+        await this.pricingService.updatePricesBulk(bulkPrices);
+      }
+    }
+
     return { success: true, count: items.length };
   }
 }

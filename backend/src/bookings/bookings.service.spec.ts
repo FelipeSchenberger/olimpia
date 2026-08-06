@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookingsService } from './bookings.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+import { MailService } from '../mail/mail.service';
 import {
   ConflictException,
   NotFoundException,
@@ -23,6 +24,10 @@ const mockPaymentsService = {
   getPayment: jest.fn(),
 };
 
+const mockMailService = {
+  sendBookingNotification: jest.fn(),
+};
+
 describe('BookingsService', () => {
   let service: BookingsService;
 
@@ -32,6 +37,7 @@ describe('BookingsService', () => {
         BookingsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: PaymentsService, useValue: mockPaymentsService },
+        { provide: MailService, useValue: mockMailService },
       ],
     }).compile();
 

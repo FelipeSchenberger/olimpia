@@ -222,6 +222,66 @@ export class SlotsService {
     return created;
   }
 
+  // 3b. Eliminar Turno Fijo permanentemente y liberar futuros
+  async deleteFixedSlot(
+    courtId: number,
+    dayOfWeek: number,
+    startTime: string,
+  ) {
+    console.log(
+      `[DeleteFixed] Request for Day ${dayOfWeek}, Time ${startTime}, Court ${courtId}`,
+    );
+
+    // 1. Delete the FixedSlot rule(s) matching this criteria
+    const deleted = await this.prisma.fixedSlot.deleteMany({
+      where: { courtId, dayOfWeek, startTime },
+    });
+
+    console.log(`[DeleteFixed] Removed ${deleted.count} FixedSlot rule(s).`);
+
+    // 2. Revert all future FIXED appointments for this day/time/court back to AVAILABLE
+    const searchDate = new Date();
+    searchDate.setHours(0, 0, 0, 0);
+    searchDate.setDate(searchDate.getDate() - 1);
+
+    const candidates = await this.prisma.appointment.findMany({
+      where: {
+        courtId,
+        startTime,
+        status: 'FIXED',
+        date: { gte: searchDate },
+      },
+    });
+
+    const idsToFree = candidates
+      .filter((app) => {
+        const dStr = app.date.toISOString().split('T')[0];
+        const dObj = new Date(dStr + 'T12:00:00');
+        let d = dObj.getDay();
+        if (d === 0) d = 7;
+        return d === dayOfWeek;
+      })
+      .map((app) => app.id);
+
+    console.log(
+      `[DeleteFixed] Freeing ${idsToFree.length} future FIXED appointments.`,
+    );
+
+    if (idsToFree.length > 0) {
+      await this.prisma.appointment.updateMany({
+        where: { id: { in: idsToFree } },
+        data: {
+          status: 'AVAILABLE',
+          type: 'NORMAL',
+          clientName: null,
+          clientPhone: null,
+        },
+      });
+    }
+
+    return { deleted: deleted.count, freed: idsToFree.length };
+  }
+
   // Helper local para obtener dia robusto
   private getDayOfWeekRobust(date: Date): number {
     const dStr = date.toISOString().split('T')[0];

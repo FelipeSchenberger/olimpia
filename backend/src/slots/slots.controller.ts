@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Query,
@@ -42,6 +43,20 @@ export class SlotsController {
   @Post('fixed')
   createFixed(@Body() body: CreateFixedSlotDto) {
     return this.slotsService.createFixedSlot(body);
+  }
+
+  @UseGuards(SupabaseAuthGuard)
+  @Delete('fixed')
+  deleteFixed(
+    @Query('courtId') courtId: string,
+    @Query('dayOfWeek') dayOfWeek: string,
+    @Query('startTime') startTime: string,
+  ) {
+    return this.slotsService.deleteFixedSlot(
+      Number(courtId),
+      Number(dayOfWeek),
+      startTime,
+    );
   }
 
   @UseGuards(SupabaseAuthGuard)

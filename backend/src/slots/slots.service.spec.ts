@@ -89,4 +89,38 @@ describe('[Fase 1] SlotsService', () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(prisma.appointment.createMany).toHaveBeenCalledTimes(2); // One for regular, one for late hours
   });
+
+  describe('deleteFixedSlot', () => {
+    it('deletes the FixedSlot rule and updates future appointments to AVAILABLE', async () => {
+      mockPrismaService.fixedSlot.deleteMany = jest.fn().mockResolvedValue({ count: 1 });
+      
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 3); // some future date
+      
+      // Mock finding one future FIXED appointment
+      mockPrismaService.appointment.findMany.mockResolvedValueOnce([
+        { id: 99, date: futureDate, status: 'FIXED' }
+      ]);
+      
+      mockPrismaService.appointment.updateMany.mockResolvedValueOnce({ count: 1 });
+
+      const dayOfWeek = futureDate.getDay() === 0 ? 7 : futureDate.getDay();
+
+      const result = await service.deleteFixedSlot(1, dayOfWeek, '18:00');
+
+      expect(mockPrismaService.fixedSlot.deleteMany).toHaveBeenCalledWith({
+        where: { courtId: 1, dayOfWeek, startTime: '18:00' },
+      });
+      expect(mockPrismaService.appointment.updateMany).toHaveBeenCalledWith({
+        where: { id: { in: [99] } },
+        data: {
+          status: 'AVAILABLE',
+          type: 'NORMAL',
+          clientName: null,
+          clientPhone: null,
+        },
+      });
+      expect(result).toEqual({ deleted: 1, freed: 1 });
+    });
+  });
 });
