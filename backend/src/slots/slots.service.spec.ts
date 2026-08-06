@@ -109,7 +109,7 @@ describe('[Fase 1] SlotsService', () => {
       const result = await service.deleteFixedSlot(1, dayOfWeek, '18:00');
 
       expect(mockPrismaService.fixedSlot.deleteMany).toHaveBeenCalledWith({
-        where: { courtId: 1, dayOfWeek, startTime: '18:00' }
+        where: { courtId: 1, dayOfWeek, startTime: '18:00' },
       });
       expect(mockPrismaService.appointment.updateMany).toHaveBeenCalledWith({
         where: { id: { in: [99] } },
@@ -118,7 +118,7 @@ describe('[Fase 1] SlotsService', () => {
           type: 'NORMAL',
           clientName: null,
           clientPhone: null,
-        }
+        },
       });
       expect(result).toEqual({ deleted: 1, freed: 1 });
     });
