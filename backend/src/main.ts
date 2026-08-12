@@ -5,6 +5,10 @@ import { AppModule } from './app.module';
 const ALLOWED_ORIGINS = [
   'https://olimpiafutbol5.com.ar',
   'https://www.olimpiafutbol5.com.ar',
+  'http://olimpiafutbol5.com.ar',
+  'http://www.olimpiafutbol5.com.ar',
+  'https://lightgreen-goshawk-116415.hostingersite.com',
+  'https://lightgoldenrodyellow-snake-159823.hostingersite.com',
   'http://localhost:4200',
   'http://localhost:3000',
 ];
