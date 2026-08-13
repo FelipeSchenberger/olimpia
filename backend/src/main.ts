@@ -7,7 +7,7 @@ const ALLOWED_ORIGINS = [
   'https://www.olimpiafutbol5.com.ar',
   'http://olimpiafutbol5.com.ar',
   'http://www.olimpiafutbol5.com.ar',
-  'https://sandybrown-jellyfish-935933.hostingersite.com',
+  'https://lightpink-mallard-150917.hostingersite.com',
   'http://localhost:4200',
   'http://localhost:3000',
 ];
