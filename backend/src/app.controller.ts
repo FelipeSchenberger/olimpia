@@ -21,4 +21,13 @@ export class AppController {
     await this.prisma.$queryRaw`SELECT 1`;
     return { status: 'ok', timestamp: new Date().toISOString() };
   }
+
+  @Get('cron/clean-pending')
+  async runCronJob() {
+    // Para ser llamado desde el CronJob de Hostinger cada minuto
+    const { CronService } = await import('./cron/cron.service');
+    const cronService = new CronService(this.prisma);
+    await cronService.handleExpiredPendingAppointments();
+    return { status: 'success', message: 'Cron job executed' };
+  }
 }

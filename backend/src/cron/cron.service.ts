@@ -8,7 +8,9 @@ export class CronService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
+  // Desactivamos el cron interno para evitar el "Prisma Panic: timer has gone away" en Hostinger
+  // En su lugar, expondremos un endpoint para llamarlo desde el panel de Hostinger.
   async handleExpiredPendingAppointments() {
     this.logger.debug('Checking for expired pending appointments...');
 
