@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
+import { CronService } from './cron/cron.service';
 
 @Controller()
 export class AppController {
@@ -25,7 +26,6 @@ export class AppController {
   @Get('cron/clean-pending')
   async runCronJob() {
     // Para ser llamado desde el CronJob de Hostinger cada minuto
-    const { CronService } = await import('./cron/cron.service');
     const cronService = new CronService(this.prisma);
     await cronService.handleExpiredPendingAppointments();
     return { status: 'success', message: 'Cron job executed' };
