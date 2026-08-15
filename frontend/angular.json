@@ -23,8 +23,15 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": ".htaccess",
+                "input": "public"
               }
             ],
+
+
+
             "styles": [
               "src/styles.css"
             ]
