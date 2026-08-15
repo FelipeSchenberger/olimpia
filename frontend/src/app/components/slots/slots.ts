@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { SlotsService } from '../../services/slots.service';
-import { BookingsService } from '../../services/bookings.service';
 
 export interface PublicSlot {
   startTime: string;
@@ -13,7 +11,7 @@ export interface PublicSlot {
 @Component({
   selector: 'app-slots',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './slots.html',
   changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './slots.css',
@@ -26,10 +24,14 @@ export class Slots implements OnInit {
   private countdownInterval: any;
   countdowns: Map<string, string> = new Map();
   
-  // Teléfono del complejo para WhatsApp
-  private complexPhone = '+5493442472109'; 
+  // Teléfono del complejo para WhatsApp (sin el +)
+  private whatsappPhone = '5493442472109'; 
 
-
+  constructor(
+    private slotsService: SlotsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
 
   ngOnInit() {
     this.loadSlots();
@@ -255,58 +257,21 @@ export class Slots implements OnInit {
     return status === 'AVAILABLE';
   }
 
-  showBookingModal = false;
-  selectedSlot: PublicSlot | null = null;
-  clientName = '';
-  clientPhone = '';
-  isSubmitting = false;
-  bookingError = '';
-
-  constructor(
-    private slotsService: SlotsService,
-    private bookingsService: BookingsService,
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
-  ) {}
-
+  /**
+   * Al tocar un slot disponible, redirige a WhatsApp con un mensaje
+   * pre-armado: "Hola quiero reservar el turno de las *15:00 hs*
+   * del dia *jueves 3 de julio*"
+   */
   reservar(slot: PublicSlot) {
     if (!this.isAvailable(slot.status)) return;
-    this.selectedSlot = slot;
-    this.showBookingModal = true;
-    this.bookingError = '';
-  }
 
-  closeBookingModal() {
-    this.showBookingModal = false;
-    this.selectedSlot = null;
-    this.clientName = '';
-    this.clientPhone = '';
-    this.bookingError = '';
-  }
+    const formattedDate = this.getFormattedDate(); // ej: "jueves, 3 de julio"
+    const time = slot.startTime; // ej: "15:00"
 
-  confirmBooking() {
-    if (!this.selectedSlot || !this.clientName || !this.clientPhone) return;
+    const message = `Hola quiero reservar el turno de las *${time} hs* del dia *${formattedDate}*`;
+    const whatsappUrl = `https://wa.me/${this.whatsappPhone}?text=${encodeURIComponent(message)}`;
 
-    this.isSubmitting = true;
-    this.bookingError = '';
-
-    this.bookingsService.createIntent({
-      date: this.date,
-      startTime: this.selectedSlot.startTime,
-      clientName: this.clientName,
-      clientPhone: this.clientPhone
-    }).subscribe({
-      next: (response) => {
-        // Redirigir a Mercado Pago
-        window.location.href = response.initPoint;
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        this.bookingError = err.error?.message || 'Error al iniciar reserva. El turno podría ya estar ocupado.';
-        this.cdr.detectChanges();
-        // Recargar slots por si alguien lo ocupó
-        this.loadSlots();
-      }
-    });
+    window.open(whatsappUrl, '_blank');
   }
 }
+
